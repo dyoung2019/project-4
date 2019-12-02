@@ -1,6 +1,5 @@
-function getTransformedAngle(angle, angularOffset) {
-  var fullCircle = 360.0
-  return (fullCircle + angle - angularOffset) % fullCircle
+function getTransformedAngle(angle, sumOfAngles, angularOffset) {
+  return (sumOfAngles + angle - angularOffset) % sumOfAngles
 }
 
 module.exports = getTransformedAngle

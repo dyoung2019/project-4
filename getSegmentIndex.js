@@ -1,6 +1,5 @@
-function getSegmentIndex(angle, segmentAngle) {
-  var fullCircle = 360.0
-  var angleOnUnitCircle = (fullCircle + angle + segmentAngle) % fullCircle
+function getSegmentIndex(angle, sumOfAngles, segmentAngle) {
+  let angleOnUnitCircle = (sumOfAngles + angle + segmentAngle) % sumOfAngles
 
   return Math.floor(angleOnUnitCircle / segmentAngle)
 }

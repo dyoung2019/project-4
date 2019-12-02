@@ -1,5 +1,5 @@
-function getAngularOffset(noOfSegments) {
-  return 360.0 / (noOfSegments * 2.0)
+function getAngularOffset(segmentAngle) {
+  return segmentAngle * 0.5
 }
 
 module.exports = getAngularOffset
