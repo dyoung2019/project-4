@@ -1,1 +1,0 @@
-const cosineMeasure = require('./cosineMeasure')

@@ -7,6 +7,13 @@ test(`12 o'clock is 0`, () => {
   expect(result).toBe(0)
 })
 
+test(`Check [-10, 10] from [0, 0] produces 45 degrees`, () => {
+  let center = [0, 0]
+  let pt = [-10, 10]
+  let result = calculateAngleFromPoint(center, pt)
+  expect(result).toBe(45)
+})
+
 test(`6 o'clock is 180`, () => {
   let center = [0, 0]
   let pt = [0, -10]
