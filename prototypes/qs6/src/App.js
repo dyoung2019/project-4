@@ -71,7 +71,7 @@ const loadPaper = (pScope) => {
     // copy.add(event.point)
 
     // endPoint = copy.segments[0]
-    if (endPoint == null) {
+    if (endPoint === null) {
       let seg = copy.add(event.point)
       // console.log("Array : " + seg)
       seg.selected = true;
@@ -102,7 +102,7 @@ const loadPaper = (pScope) => {
   }
 
   tool.onKeyDown = function(event) {
-    if (event.key == 'space') {
+    if (event.key === 'space') {
         // Scale the path by 110%:
         // scribble.strokeColor = 'blue' 
         // Prevent the key event from bubbling
@@ -111,7 +111,7 @@ const loadPaper = (pScope) => {
   }
 
   tool.onKeyUp = function(event) {
-    if (event.key == 'space') {
+    if (event.key === 'space') {
       // Scale the path by 110%:
       // scrsibble.strokeColor = 'green' 
       // Prevent the key event from bubbling
@@ -137,7 +137,7 @@ class App extends React.Component {
         <h1>Drawing Box</h1>
         <div>
           <div className="drawing-box">
-            <canvas ref={el => this.myCanvas = el} resize/>
+            <canvas ref={el => this.myCanvas = el} resize="true"/>
           </div>
         </div>
       </div>
