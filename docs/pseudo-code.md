@@ -55,10 +55,11 @@ Image layer
 
 - Composition
   - layers
+    - switch toggle
     - Thumbnail(s)?
-      - p5 sketch canvas (separate resolution)
+      - p5 sketch canvas (thumbnail resolution)
         - setup
-          - canvas (image size)
+          - canvas (original size)
           - no loop 
     - Source div
       - Canvas
