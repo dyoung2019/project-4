@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import MainCanvas from './MainCanvas/MainCanvas'
 
 function App() {
   return (
@@ -22,9 +23,7 @@ function App() {
       <section className="source-info-panel">
         Source Info
       </section>
-      <section className="main-canvas">
-        main canvas
-      </section>
+      <MainCanvas />
     </div>
   );
 }
