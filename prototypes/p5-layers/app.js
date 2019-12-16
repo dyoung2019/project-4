@@ -83,19 +83,20 @@ let sketch = (p, options) => {
   p.draw = () => {
     // p.clear()
     // STEP 0: clear background color on canvas
-    p.background(220)
+    p.background(0)
     
     // overlay
     // p.background(0);
 
-    let opacity = 65
+    let opacity = 0.55 * 255
     // STEP 1: layer 1 must be clear
     layer_1.clear()
     // p.background(0);
     // STEP 2: COLOR IS SET ON p5 instance
-    p.fill(255, 255, 255, opacity);
+    layer_1.stroke(255, 255, 255, opacity);
+    layer_1.fill(255, 255, 255, opacity);
     // STEP 3: Draw here on layer
-    layer_1.ellipse(p.mouseX, p.mouseY, 250);
+    layer_1.ellipse(p.mouseX, p.mouseY, 250, 250);
 
     // let mergeLayers = composeImages(layer_0, layer_1)
     // STEP 4A: create sub image of src image
@@ -112,6 +113,7 @@ let sketch = (p, options) => {
     let blendMode = p.BLEND
     p.blendMode(blendMode)
     // STEP 7: draw main canvas
+    // p.tint(255, opacity)
     p.image(subImage, 0, 0)
     // STEP 8: reset blend mode
     // p.blendMode(p.BLEND)

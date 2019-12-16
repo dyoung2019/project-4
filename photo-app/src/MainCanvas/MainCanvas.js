@@ -8,15 +8,19 @@ export default class MainCanvas extends React.Component {
     imageHeight: this.props.imageHeight,
   }
 
-  setupOverlay = (p, imageDimensions, canvasDimensions) => {
-    // create a p5.Graphics containing the image that will be masked
-    const sourceImage_1 = p.createGraphics(imageDimensions[0],imageDimensions[1]);
+  createPaperJsGraphicLayer = (p, dimensions) => {
+    const sourceImage_1 = p.createGraphics(dimensions[0], dimensions[1]);
     // sourceImage_1.elt.id = "layer_2_src"
 
     sourceImage_1.attribute('resize', 'true')
     sourceImage_1.attribute('hidpi', 'false')
     sourceImage_1.addClass('paper-canvas')
+    return sourceImage_1
+  }
 
+  setupLayerWithShapes = (p, imageDimensions, canvasDimensions) => {
+    const sourceImage_1 = this.createPaperJsGraphicLayer(p, imageDimensions)
+    
     // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
     this.loadPaper(sourceImage_1.elt)
 
@@ -42,21 +46,29 @@ export default class MainCanvas extends React.Component {
 
     // create a p5.Graphics containing the image that will be masked
     const vectorMask = p.createGraphics(canvasDimensions[0],canvasDimensions[1]);
-    vectorMask.elt.id = "layer_1"
-
-    vectorMask.attribute('resize', 'true')
-    vectorMask.attribute('hidpi', 'true')
-    vectorMask.addClass('paper-canvas')
-    // layer_1.parent(paperContainer)
-
-    // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
-    // loadPaper(layer_1.elt)
-
     const source = generateBackground(imageDimensions[0], imageDimensions[1])
     // source.elt.id = "layer_0"
 
     return {sourceImage: source, vectorMask: vectorMask}
   } 
+
+  setupMaskOverlay = (localCanvas, p, canvasDimensions) => {
+    
+    var mainScope = new paper.PaperScope()
+    mainScope.setup(localCanvas.elt)
+    
+    localCanvas.attribute('resize', 'true')
+    localCanvas.attribute('hidpi', 'false')
+    localCanvas.addClass('paper-canvas')
+    
+    var vectorScope = new paper.PaperScope()
+    const vectorMask = this.createPaperJsGraphicLayer(p ,canvasDimensions)
+    vectorMask.elt.id = "vectorScope"
+    vectorScope.setup(vectorMask.elt)
+    this.mirrorVectorMask(mainScope, vectorScope)
+
+    return {sourceImage: vectorMask}
+  }
 
   sketch = (p) => {
     const layers = []
@@ -68,9 +80,11 @@ export default class MainCanvas extends React.Component {
       let canvasDimensions = [canvasWidth, canvasHeight]
 
       // canvas size on screen
-      p.createCanvas(canvasWidth, canvasHeight)
+      const localCanvas = p.createCanvas(canvasWidth, canvasHeight)
       layers.push(this.setupSketch(p, imageDimensions, canvasDimensions))
-      layers.push(this.setupOverlay(p, imageDimensions, canvasDimensions))
+      layers.push(this.setupLayerWithShapes(p, imageDimensions, canvasDimensions))
+
+      layers.push(this.setupMaskOverlay(localCanvas, p, canvasDimensions))
     }
 
     p.draw = () => {
@@ -78,7 +92,7 @@ export default class MainCanvas extends React.Component {
       p.clear()
       p.background(220)
   
-      let opacity = 255
+      let opacity = 128
       // STEP 1: layer 1 must be clear
       // vectorMask.clear()
       // p.background(0);
@@ -86,8 +100,13 @@ export default class MainCanvas extends React.Component {
       // STEP 3: Draw here on layer
       const circleMask = layers[0].vectorMask
       circleMask.clear()
-      p.fill(255, 255, 255, opacity)
+      
+      // DESTINATION SET COLOR AND OPACITY
+      circleMask.stroke(255, 255, 255, opacity)
+      circleMask.fill(255, 255, 255, opacity)
+
       circleMask.ellipse(p.mouseX, p.mouseY, 250);
+      // circleMask.ellipse(0, 0, 250)
 
       // let mergeLayers = composeImages(layer_0, layer_1)
       // STEP 4A: create sub image of src image
@@ -101,8 +120,6 @@ export default class MainCanvas extends React.Component {
         const sy = 0
 
 
-        const sWidth = sourceImage.width
-        const sHeight = sourceImage.height
 
         const dWidth = canvasWidth;
         // console.log('dWidth' + dWidth)
@@ -111,7 +128,10 @@ export default class MainCanvas extends React.Component {
         // debugger;
         // console.log('dHeight' +  dHeight)
 
-        if (vectorMask !== undefined) {
+        if (sourceImage !== undefined && vectorMask !== undefined) {
+          const sWidth = sourceImage.width
+          const sHeight = sourceImage.height
+
           const subMask  = vectorMask.get(0, 0, vectorMask.width, vectorMask.height)
         
           const subImage = sourceImage.get(0, 0, sourceImage.width, sourceImage.height)
@@ -127,14 +147,16 @@ export default class MainCanvas extends React.Component {
           p.image(subImage, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight)
           // STEP 8: reset blend mode
           p.blendMode(p.BLEND)
-        } else {
+        } else if (sourceImage !== undefined ){
           //p.image(layer_1, 0, 0)
           // STEP 6: apply layer's blend mode
           let blendMode = p.BLEND
           p.blendMode(blendMode)
           // STEP 7: draw main canvas
-          
-          p.image(layer.sourceImage, dx, dy, dWidth, dHeight)
+          // alpha OPACITY tinting 
+          // p.tint(255, opacity)
+          // debugger;s
+          p.image(sourceImage, dx, dy, dWidth, dHeight)
           // STEP 8: reset blend mode
           p.blendMode(p.BLEND)
         }
@@ -179,8 +201,75 @@ export default class MainCanvas extends React.Component {
     
     // Smooth the segments of the copy:
     copy.smooth();
+  }
 
-    console.log('done')
+  // Get a reference to the canvas object
+  mirrorVectorMask = (mainScope, vectorScope) => {
+    console.log('hello')
+    var path = new vectorScope.Path();
+    path.strokeColor = 'black';
+    path.add(new vectorScope.Point(30, 75)); 
+    path.add(new vectorScope.Point(30, 25)); 
+    path.add(new vectorScope.Point(80, 25));
+    path.add(new vectorScope.Point(80, 75));
+    path.closed = true;
+
+    var copy = new vectorScope.Path()
+    copy.fullySelected = true;
+
+    // var tool = new mainScope.Tool();
+    var endPoint = null
+    
+    function pullHandles(segment, point) {
+      let dx = segment.point.x - point.x
+      let dy = segment.point.y - point.y
+
+      endPoint.handleIn = new vectorScope.Point(dx, dy)
+      endPoint.handleOut = new vectorScope.Point(-dx, -dy)
+    }
+
+    mainScope.view.onMouseDown = function(event) {
+      if (endPoint === null) {
+        let seg = copy.add(event.point)
+        // console.log("Array : " + seg)
+        seg.selected = true;
+        endPoint = seg
+      }
+
+      return false
+    }
+
+    mainScope.view.onMouseDrag = function(event) {
+      // console.log('mouse up :' + event.point);
+      if (!!endPoint) {
+        pullHandles(endPoint, event.point)
+      }
+    }
+
+    mainScope.view.onMouseUp = function(event) {
+      // console.log('mouse up :' + event.point);
+      endPoint = null
+    }
+
+    mainScope.view.onKeyDown = function(event) {
+      if (event.key === 'space') {
+          // Scale the path by 110%:
+          // scribble.strokeColor = 'blue' 
+          // Prevent the key event from bubbling
+          return false;
+      }
+    }
+
+    mainScope.view.onKeyUp = function(event) {
+      if (event.key === 'space') {
+        // Scale the path by 110%:
+        // scrsibble.strokeColor = 'green' 
+        // Prevent the key event from bubbling
+        return false;
+      }
+    }
+
+    vectorScope.view.draw()
   }
 
   componentDidMount  = () => {
