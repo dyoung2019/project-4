@@ -1,38 +1,52 @@
-.App {
-  text-align: center;
+.App{
+  background-color: lightsalmon;
+  display: grid;
+  grid-column-gap: 24px;
+  grid-row-gap: 24px;
+  grid-template-columns: repeat(11, 108px);
+  grid-template-rows: repeat(8, 108px);
+  grid-template-areas: 
+    "mt mt mt mt mt mt mt mt mt mt mt"
+    "lp lp lp st st st st st st st st"
+    "lp lp lp cv cv cv cv cv cv si si"
+    "lp lp lp cv cv cv cv cv cv si si" 
+    "lp lp lp cv cv cv cv cv cv si si" 
+    "lp lp lp cv cv cv cv cv cv kb kb" 
+    "cp cp cp cv cv cv cv cv cv kb kb" 
+    "cp cp cp cv cv cv cv cv cv kb kb" 
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.App .main-toolbar {
+  background-color: grey;
+  grid-area: mt;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.App .main-canvas {
+  background-color: lightsteelblue;
+  grid-area: cv;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.App .sub-toolbar {
+  background-color: pink;
+  grid-area: st;
 }
 
-.App-link {
-  color: #61dafb;
+.App .layers-panel {
+  background-color: purple;
+  grid-area: lp;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App .compositions-panel {
+  background-color: orangered;
+  grid-area: cp;
+}
+
+.App .source-info-panel {
+  background-color: lightblue;
+  grid-area: si;
+}
+
+.App .key-bindings-panel {
+  background-color: lightgreen;
+  grid-area: kb;
 }
