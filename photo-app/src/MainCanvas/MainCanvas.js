@@ -2,12 +2,32 @@ import React from 'react'
 import paper from 'paper'
 
 export default class MainCanvas extends React.Component {
-  sketch = (p) => {
-    var vectorMask;
-    var source;
   
+  state = {
+    imageWidth: this.props.imageWidth,
+    imageHeight: this.props.imageHeight,
+  }
+
+  setupOverlay = (p, imageDimensions, canvasDimensions) => {
+    // create a p5.Graphics containing the image that will be masked
+    const sourceImage_1 = p.createGraphics(imageDimensions[0],imageDimensions[1]);
+    // sourceImage_1.elt.id = "layer_2_src"
+
+    sourceImage_1.attribute('resize', 'true')
+    sourceImage_1.attribute('hidpi', 'false')
+    sourceImage_1.addClass('paper-canvas')
+
+    // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
+    this.loadPaper(sourceImage_1.elt)
+
+    return {
+      sourceImage: sourceImage_1
+    }
+  }
+
+  setupSketch = (p, imageDimensions, canvasDimensions) => {
     // debugger
-    var generateBackground = (w, h) => {
+    const generateBackground = (w, h) => {
       let bkgd  = p.createGraphics(w,h);
       // draw some stuff.
       bkgd.background(255,0,0);
@@ -19,71 +39,119 @@ export default class MainCanvas extends React.Component {
       }
       return bkgd
     } 
-  
+
+    // create a p5.Graphics containing the image that will be masked
+    const vectorMask = p.createGraphics(canvasDimensions[0],canvasDimensions[1]);
+    vectorMask.elt.id = "layer_1"
+
+    vectorMask.attribute('resize', 'true')
+    vectorMask.attribute('hidpi', 'true')
+    vectorMask.addClass('paper-canvas')
+    // layer_1.parent(paperContainer)
+
+    // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
+    // loadPaper(layer_1.elt)
+
+    const source = generateBackground(imageDimensions[0], imageDimensions[1])
+    // source.elt.id = "layer_0"
+
+    return {sourceImage: source, vectorMask: vectorMask}
+  } 
+
+  sketch = (p) => {
+    const layers = []
+    let canvasWidth = 500
+    let canvasHeight = 500
+
     p.setup = () => {
-      let w = 400
-      let h = 400
-  
-      p.createCanvas(w, h)
-      p.background(220)
-  
-      // create a p5.Graphics containing the image that will be masked
-      vectorMask = p.createGraphics(w,h);
-      vectorMask.elt.id = "layer_1"
-      // layer_1.elt.('resize');
-      // paperContainer.style.width = w
-      // paperContainer.style.height = h
-  
-      vectorMask.attribute('resize', 'true')
-      vectorMask.attribute('hidpi', 'true')
-      vectorMask.addClass('paper-canvas')
-      // layer_1.parent(paperContainer)
-  
-      // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
-      // loadPaper(layer_1.elt)
-  
-      source = generateBackground(w, h)
-      source.elt.id = "layer_0"
+      let imageDimensions = [this.state.imageWidth, this.state.imageHeight]
+      let canvasDimensions = [canvasWidth, canvasHeight]
+
+      // canvas size on screen
+      p.createCanvas(canvasWidth, canvasHeight)
+      layers.push(this.setupSketch(p, imageDimensions, canvasDimensions))
+      layers.push(this.setupOverlay(p, imageDimensions, canvasDimensions))
     }
-  
+
     p.draw = () => {
-      p.clear()
       // STEP 0: clear background color on canvas
+      p.clear()
       p.background(220)
-      
-      // overlay
-      // p.background(0);
   
-      let opacity = 65
+      let opacity = 255
       // STEP 1: layer 1 must be clear
-      vectorMask.clear()
+      // vectorMask.clear()
       // p.background(0);
       // STEP 2: COLOR IS SET ON p5 instance
-      p.fill(255, 255, 255, opacity)
       // STEP 3: Draw here on layer
-      vectorMask.ellipse(p.mouseX, p.mouseY, 250);
-  
-    
+      const circleMask = layers[0].vectorMask
+      circleMask.clear()
+      p.fill(255, 255, 255, opacity)
+      circleMask.ellipse(p.mouseX, p.mouseY, 250);
+
       // let mergeLayers = composeImages(layer_0, layer_1)
       // STEP 4A: create sub image of src image
-      let subImage = source.get(0, 0, source.width, source.height)
+      layers.forEach( layer => {
+        const sourceImage = layer.sourceImage
+        const vectorMask = layer.vectorMask
+
+        const dx = 0
+        const dy = 0
+        const sx = 0
+        const sy = 0
+
+
+        const sWidth = sourceImage.width
+        const sHeight = sourceImage.height
+
+        const dWidth = canvasWidth;
+        // console.log('dWidth' + dWidth)
+        const dHeight = canvasHeight;
+
+        // debugger;
+        // console.log('dHeight' +  dHeight)
+
+        if (vectorMask !== undefined) {
+          const subMask  = vectorMask.get(0, 0, vectorMask.width, vectorMask.height)
+        
+          const subImage = sourceImage.get(0, 0, sourceImage.width, sourceImage.height)
+
+          subImage.mask(subMask)
+
+          //p.image(layer_1, 0, 0)
+          // STEP 6: apply layer's blend mode
+          let blendMode = p.BLEND
+          p.blendMode(blendMode)
+          // STEP 7: draw main canvas
+          
+          p.image(subImage, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight)
+          // STEP 8: reset blend mode
+          p.blendMode(p.BLEND)
+        } else {
+          //p.image(layer_1, 0, 0)
+          // STEP 6: apply layer's blend mode
+          let blendMode = p.BLEND
+          p.blendMode(blendMode)
+          // STEP 7: draw main canvas
+          
+          p.image(layer.sourceImage, dx, dy, dWidth, dHeight)
+          // STEP 8: reset blend mode
+          p.blendMode(p.BLEND)
+        }
+      })
+
+
       // STEP 4B: create sub image of mask (OPTIONAL)
-      let subMask  = vectorMask.get(0, 0, vectorMask.width, vectorMask.height)
+
       // let localMask = createMask(layer_1)
     
       // STEP 5: apply mask of subimage (copy), so src image is not updated
-      subImage.mask(subMask)
+
       // debugger
       // p.image(subImage, 0, 0)
       
-      //p.image(layer_1, 0, 0)
-      // STEP 6: apply layer's blend mode
-      let blendMode = p.BLEND
-      p.blendMode(blendMode)
-      // STEP 7: draw main canvas
-      p.image(subImage, 0, 0)
-      // STEP 8: reset blend mode
-      p.blendMode(p.BLEND)
+
+      
     }
   }
 
@@ -115,64 +183,9 @@ export default class MainCanvas extends React.Component {
     console.log('done')
   }
 
-  overlay = (p) => {
-    var layer_1;
-    var layer_0;
-
-    // debugger
-    var generateBackground = (w, h) => {
-      let bkgd  = p.createGraphics(w,h);
-      // draw some stuff.
-      bkgd.background(255,0,0);
-      bkgd.stroke(255, 204, 0);
-      
-      for(var i = 0; i < p.width + 10; i += 10) {
-        bkgd.strokeWeight(i/40)
-        bkgd.line(i,0,i,400);
-      }
-      return bkgd
-    }
-
-    p.setup = () => {
-      let w = 400
-      let h = 400
-
-      p.createCanvas(w, h);
-      // p.background(220);
-
-      // create a p5.Graphics containing the image that will be masked
-      layer_1 = p.createGraphics(w,h);
-      layer_1.elt.id = "layer_1"
-
-      layer_1.attribute('resize', 'true')
-      layer_1.attribute('hidpi', 'false')
-      layer_1.addClass('paper-canvas')
-
-      // const paperCanvas = document.querySelector('.paper-container .paper-canvas')
-      this.loadPaper(layer_1.elt)
-
-      layer_0 = generateBackground(w, h)
-      layer_0.elt.id = "layer_0"
-    }
-
-    p.draw = () => {
-      p.clear()
-      // STEP 0: clear background color on canvas
-      p.background(220)
-      
-      // overlay
-      // p.background(0);
-
-      let opacity = 65
-
-      p.image(layer_1, 0, 0)
-    }
-  }
-
-
   componentDidMount  = () => {
     const p5Container = this.p5Container
-    this.p5Scope = new window.p5(this.overlay, p5Container)
+    this.p5Scope = new window.p5(this.sketch, p5Container)
   }
 
   render() {

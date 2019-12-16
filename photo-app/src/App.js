@@ -23,7 +23,7 @@ function App() {
       <section className="source-info-panel">
         Source Info
       </section>
-      <MainCanvas />
+      <MainCanvas imageWidth="400" imageHeight="300" />
     </div>
   );
 }
