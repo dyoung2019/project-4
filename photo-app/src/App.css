@@ -32,8 +32,9 @@
 }
 
 .App .layers-panel {
-  background-color: purple;
+  background-color: white;
   grid-area: lp;
+  overflow: hidden;
 }
 
 .App .compositions-panel {

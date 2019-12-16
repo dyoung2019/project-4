@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import MainCanvas from './MainCanvas/MainCanvas'
+import LayersPanel from './LayersPanel/LayersPanel'
 
 function App() {
   return (
@@ -8,9 +9,7 @@ function App() {
       <header className="main-toolbar">
         Toolbar
       </header>
-      <section className="layers-panel">
-        layers
-      </section>
+      <LayersPanel />
       <section className="sub-toolbar">
         toolbar
       </section>      
