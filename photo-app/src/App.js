@@ -8,7 +8,17 @@ import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 class App extends React.Component {
   state ={
     opacity: 128,
-    blendMode: "BLEND"
+    blendMode: "BLEND",
+    backgroundColor: '#ccccccff',
+    foregroundColor: '#ccccccff',
+  }
+
+  handleBackgroundColor = (colorHex) => {
+    this.setState({ backgroundColor: colorHex })
+  }
+
+  handleForegroundColor = (colorHex) => {
+    this.setState({ foregroundColor: colorHex })
   }
 
   handleOpacity = (event) => {
@@ -42,7 +52,11 @@ class App extends React.Component {
         <section className="key-bindings-panel">
           Key Bindings
         </section>
-        <SourceInfoPanel />
+        <SourceInfoPanel 
+          foregroundColor={this.state.foregroundColor}
+          handleForegroundColor={this.handleForegroundColor}
+          backgroundColor={this.state.backgroundColor}
+          handleBackgroundColor={this.handleBackgroundColor} />
         <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} />
       </div>
     )
