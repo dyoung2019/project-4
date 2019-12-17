@@ -8,6 +8,8 @@ export default class MainCanvas extends React.Component {
     this.currentPaperScope = null
     this.incompletePathOnCurrentLayer = null
     this.lastPathSegment = null
+    this.currentActivePaperLayer = null
+
     this.state = {
       imageWidth: props.imageWidth,
       imageHeight: props.imageHeight,
@@ -218,15 +220,12 @@ export default class MainCanvas extends React.Component {
     copy.smooth();
   }
 
-  createNewOpenedPathIfRequired = (processingScope) => {
-    let incompletePath = this.incompletePathOnCurrentLayer
-
-    if (incompletePath === null) {
-      incompletePath = new processingScope.Path()
-      incompletePath.fullySelected = true
-      this.incompletePathOnCurrentLayer = incompletePath
-    }
-    return incompletePath
+  createNewOpenedPath = () => {
+    const processingScope = this.currentPaperScope
+    const newPath = new processingScope.Path()
+    newPath.fullySelected = true
+    this.incompletePathOnCurrentLayer = newPath
+    return newPath
   } 
 
   insertEditablePointAtEndOfPath = (path, point) => {
@@ -246,6 +245,10 @@ export default class MainCanvas extends React.Component {
     return this.lastPathSegment
   }
 
+  getCurrentOpenPath = () => {
+    return this.incompletePathOnCurrentLayer
+  }
+
   closeCurrentLayerPath = () => {
     let incompletePath = this.incompletePathOnCurrentLayer
     if (!!incompletePath) {
@@ -255,27 +258,44 @@ export default class MainCanvas extends React.Component {
       // FREE 
       this.incompletePathOnCurrentLayer = null
       this.setCurrentPathSegment(null)
+      this.currentActivePaperLayer.addChild(incompletePath)
     }
+  }
+
+  setLocalPaperScope = (scope) => {
+    this.currentPaperScope = scope
+    this.currentActivePaperLayer = scope.project.activeLayer
+  }
+
+  performHitTest = (point) => {
+    // CUSTOM LATER
+    const hitOptions = {
+      segments: true,
+      stroke: true,
+      fill: true,
+      tolerance: 5
+    }
+
+    return this.currentPaperScope.project.hitTest(point, hitOptions)
   }
 
   // Get a reference to the canvas object
   mirrorVectorMask = (mainScope, vectorScope) => {
     
-    this.currentPaperScope = vectorScope
+    this.setLocalPaperScope(vectorScope)
 
-    console.log('paper.activeLayer' + paper.project.activeLayer)
-    var path = new this.currentPaperScope.Path();
-    path.strokeColor = 'black';
-    path.fillColor = 'red'
-    path.add(new this.currentPaperScope.Point(30, 75)); 
-    path.add(new this.currentPaperScope.Point(30, 25)); 
-    path.add(new this.currentPaperScope.Point(80, 25));
-    path.add(new this.currentPaperScope.Point(80, 75));
-    path.add(new this.currentPaperScope.Point(85, 95));
-    path.closed = true;
+    // console.log('paper.activeLayer' + paper.project.activeLayer)
+    // var path = new this.currentPaperScope.Path();
+    // path.strokeColor = 'black';
+    // path.fillColor = 'red'
+    // path.add(new this.currentPaperScope.Point(30, 75)); 
+    // path.add(new this.currentPaperScope.Point(30, 25)); 
+    // path.add(new this.currentPaperScope.Point(80, 25));
+    // path.add(new this.currentPaperScope.Point(80, 75));
+    // path.add(new this.currentPaperScope.Point(85, 95));
+    // path.closed = true;
 
-    var currentLayerRef = this.currentPaperScope.project.activeLayer
-    console.log(currentLayerRef)
+    // console.log(currentLayerRef)
 
     // console.log('currentPaperScope.activeLayer' + this.currentPaperScope.project.activeLayer)
     // console.log(paper.project.layers)
@@ -283,20 +303,30 @@ export default class MainCanvas extends React.Component {
     // console.log(this.currentPaperScope.project.layers)
     // console.log(this.currentPaperScope.projects)
 
-    var localPath = null;
     mainScope.view.onMouseDown = (event) => {
-      let incompletePath = localPath
+      let openPath = this.getCurrentOpenPath()
+      const hitResult = this.performHitTest(event.point)
 
-      if (incompletePath === null) {
-        incompletePath = new this.currentPaperScope.Path()
-        incompletePath.fullySelected = true
-        localPath = incompletePath
-        // currentLayerRef.addChild(localPath)
+      if (openPath && hitResult) {
+        const path = hitResult.item;
+        const selectedSegment = hitResult.segment
+        const frontEndOfPath = path.segments[0]
+
+        // UNLESS HIT TEST GETS FILL THEN STAGE FOR PATH FOR MOVING
+        if (hitResult.type === 'segment' && selectedSegment === frontEndOfPath) {
+          // AUTO CLOSE SEGMENT
+          this.closeCurrentLayerPath()
+          return false
+        }
+      }
+      else if (!openPath) {
+        // CREATE NEW PATH 
+        openPath = this.createNewOpenedPath()
       }
 
-      const segment = this.insertEditablePointAtEndOfPath(incompletePath, event.point)
+      // PUT DOWN NEXT POINT ON PATH
+      const segment = this.insertEditablePointAtEndOfPath(openPath, event.point)
       this.setCurrentPathSegment(segment)
-      // STOP BUBBLING
       return false
     }
 
@@ -326,8 +356,7 @@ export default class MainCanvas extends React.Component {
       if (!!segment) {
         if (event.modifiers.option) {
           extendPathHandleIndependently(segment, event.point)
-        }
-        else {
+        } else {
           extendPathHandles(segment, event.point)
         }
       }
@@ -341,49 +370,16 @@ export default class MainCanvas extends React.Component {
     mainScope.view.onKeyDown = (event) => {
       if (event.key === 'enter') {
 
-        let incompletePath = localPath
+        let incompletePath = this.getCurrentPathSegment()
         if (incompletePath) {
-          incompletePath.fillColor = 'white'
-
-          // FREE 
-
-          // var path2 = new this.currentPaperScope.Path();
-          // path2.strokeColor = 'black';
-          // path2.fillColor = 'blue'
-          // path2.add(new this.currentPaperScope.Point(130, 75)); 
-          // path2.add(new this.currentPaperScope.Point(130, 25)); 
-          // path2.add(new this.currentPaperScope.Point(180, 25));
-          // path2.add(new this.currentPaperScope.Point(180, 75));
-          // path2.closed = true;
-
-          // currentLayerRef.addChild(path2)
-
-          localPath = null
-          this.setCurrentPathSegment(null)
-
-          incompletePath.fullySelected = false
-          incompletePath.closed = true
-
-          currentLayerRef.addChild(incompletePath)
-          
-          // console.log('currentPaperScope.activeLayer 2 ' + this.currentPaperScope.project.activeLayer)
-          // console.log(paper.project.layers)
-          // console.log(paper.projects)
-          // console.log(this.currentPaperScope.project.layers)
-          // console.log(this.currentPaperScope.projects)
+          this.closeCurrentLayerPath()   
           return false
-        }
-        else {
-          return true
         }
       } else if (event.key === 'space') {
           // Scale the path by 110%:
           // scribble.strokeColor = 'blue' 
           // Prevent the key event from bubbling
           return false;
-      }
-      else {
-        return true
       }
     }
 
