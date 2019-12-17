@@ -3,9 +3,15 @@ import paper from 'paper'
 
 export default class MainCanvas extends React.Component {
   
-  state = {
-    imageWidth: this.props.imageWidth,
-    imageHeight: this.props.imageHeight,
+  constructor(props) {
+    super()
+    this.currentPaperScope = null
+    this.incompletePathOnCurrentLayer = null
+    this.lastPathSegment = null
+    this.state = {
+      imageWidth: props.imageWidth,
+      imageHeight: props.imageHeight,
+    }
   }
 
   createPaperJsGraphicLayer = (p, dimensions) => {
@@ -97,9 +103,10 @@ export default class MainCanvas extends React.Component {
       layers.push(this.setupLayerWithShapes(p, imageDimensions, canvasDimensions))
 
       layers.push(this.setupMaskOverlay(localCanvas, p, canvasDimensions))
+      // p.noLoop()
     }
 
-    p.draw = () => {
+    const composeLayers = () => {
       // STEP 0: clear background color on canvas
       p.clear()
       p.background(220)
@@ -118,11 +125,11 @@ export default class MainCanvas extends React.Component {
       circleMask.fill(255, 255, 255, opacity)
 
       circleMask.ellipse(p.mouseX, p.mouseY, 250);
-      // circleMask.ellipse(0, 0, 250)
+      circleMask.ellipse(0, 0, 250)
 
       // let mergeLayers = composeImages(layer_0, layer_1)
       // STEP 4A: create sub image of src image
-      layers.forEach( layer => {
+      layers.forEach( (layer, i) => {
         const sourceImage = layer.sourceImage
         const vectorMask = layer.vectorMask
 
@@ -174,18 +181,14 @@ export default class MainCanvas extends React.Component {
         }
       })
 
+      let fps = p.frameRate();
+      p.fill(0, 255, 255, 255);
+      p.stroke(0, 255);
+      p.text("FPS: " + fps.toFixed(2), 10, p.height - 10);
+    }
 
-      // STEP 4B: create sub image of mask (OPTIONAL)
-
-      // let localMask = createMask(layer_1)
-    
-      // STEP 5: apply mask of subimage (copy), so src image is not updated
-
-      // debugger
-      // p.image(subImage, 0, 0)
-      
-
-      
+    p.draw = () => {
+      composeLayers()
     }
   }
 
@@ -215,73 +218,186 @@ export default class MainCanvas extends React.Component {
     copy.smooth();
   }
 
+  createNewOpenedPathIfRequired = (processingScope) => {
+    let incompletePath = this.incompletePathOnCurrentLayer
+
+    if (incompletePath === null) {
+      incompletePath = new processingScope.Path()
+      incompletePath.fullySelected = true
+      this.incompletePathOnCurrentLayer = incompletePath
+    }
+    return incompletePath
+  } 
+
+  insertEditablePointAtEndOfPath = (path, point) => {
+    let endPoint = this.lastPathSegment 
+    if (endPoint === null) {
+      endPoint = path.add(point)
+      endPoint.selected = true;
+    }
+    return endPoint
+  }
+
+  setCurrentPathSegment = segment => {
+    this.lastPathSegment  = segment
+  }
+
+  getCurrentPathSegment = () => {
+    return this.lastPathSegment
+  }
+
+  closeCurrentLayerPath = () => {
+    let incompletePath = this.incompletePathOnCurrentLayer
+    if (!!incompletePath) {
+      incompletePath.fillColor = 'white'
+      incompletePath.fullySelected = false
+      incompletePath.closed = true
+      // FREE 
+      this.incompletePathOnCurrentLayer = null
+      this.setCurrentPathSegment(null)
+    }
+  }
+
   // Get a reference to the canvas object
   mirrorVectorMask = (mainScope, vectorScope) => {
-    console.log('hello')
-    var path = new vectorScope.Path();
+    
+    this.currentPaperScope = vectorScope
+
+    console.log('paper.activeLayer' + paper.project.activeLayer)
+    var path = new this.currentPaperScope.Path();
     path.strokeColor = 'black';
-    path.add(new vectorScope.Point(30, 75)); 
-    path.add(new vectorScope.Point(30, 25)); 
-    path.add(new vectorScope.Point(80, 25));
-    path.add(new vectorScope.Point(80, 75));
+    path.fillColor = 'red'
+    path.add(new this.currentPaperScope.Point(30, 75)); 
+    path.add(new this.currentPaperScope.Point(30, 25)); 
+    path.add(new this.currentPaperScope.Point(80, 25));
+    path.add(new this.currentPaperScope.Point(80, 75));
+    path.add(new this.currentPaperScope.Point(85, 95));
     path.closed = true;
 
-    var copy = new vectorScope.Path()
-    copy.fullySelected = true;
+    var currentLayerRef = this.currentPaperScope.project.activeLayer
+    console.log(currentLayerRef)
 
-    // var tool = new mainScope.Tool();
-    var endPoint = null
-    
-    function pullHandles(segment, point) {
-      let dx = segment.point.x - point.x
-      let dy = segment.point.y - point.y
+    // console.log('currentPaperScope.activeLayer' + this.currentPaperScope.project.activeLayer)
+    // console.log(paper.project.layers)
+    // console.log(paper.projects)
+    // console.log(this.currentPaperScope.project.layers)
+    // console.log(this.currentPaperScope.projects)
 
-      endPoint.handleIn = new vectorScope.Point(dx, dy)
-      endPoint.handleOut = new vectorScope.Point(-dx, -dy)
-    }
+    var localPath = null;
+    mainScope.view.onMouseDown = (event) => {
+      let incompletePath = localPath
 
-    mainScope.view.onMouseDown = function(event) {
-      if (endPoint === null) {
-        let seg = copy.add(event.point)
-        // console.log("Array : " + seg)
-        seg.selected = true;
-        endPoint = seg
+      if (incompletePath === null) {
+        incompletePath = new this.currentPaperScope.Path()
+        incompletePath.fullySelected = true
+        localPath = incompletePath
+        // currentLayerRef.addChild(localPath)
       }
 
+      const segment = this.insertEditablePointAtEndOfPath(incompletePath, event.point)
+      this.setCurrentPathSegment(segment)
+      // STOP BUBBLING
       return false
     }
 
-    mainScope.view.onMouseDrag = function(event) {
+    const extendPathHandles = (segment, point) => {
+      let dx = segment.point.x - point.x
+      let dy = segment.point.y - point.y
+
+      segment.handleIn = new this.currentPaperScope.Point(dx, dy)
+      segment.handleOut = new this.currentPaperScope.Point(-dx, -dy)
+    }
+
+    mainScope.view.onMouseDrag = (event) => {
       // console.log('mouse up :' + event.point);
-      if (!!endPoint) {
-        pullHandles(endPoint, event.point)
+      const segment = this.getCurrentPathSegment() 
+      if (!!segment) {
+        extendPathHandles(segment, event.point)
       }
     }
 
-    mainScope.view.onMouseUp = function(event) {
+    mainScope.view.onMouseUp = (event) => {
       // console.log('mouse up :' + event.point);
-      endPoint = null
+      this.setCurrentPathSegment(null)
     }
 
-    mainScope.view.onKeyDown = function(event) {
-      if (event.key === 'space') {
+    mainScope.view.onKeyDown = (event) => {
+      if (event.key === 'enter') {
+
+        let incompletePath = localPath
+        if (incompletePath) {
+          incompletePath.fillColor = 'white'
+
+          // FREE 
+
+          // var path2 = new this.currentPaperScope.Path();
+          // path2.strokeColor = 'black';
+          // path2.fillColor = 'blue'
+          // path2.add(new this.currentPaperScope.Point(130, 75)); 
+          // path2.add(new this.currentPaperScope.Point(130, 25)); 
+          // path2.add(new this.currentPaperScope.Point(180, 25));
+          // path2.add(new this.currentPaperScope.Point(180, 75));
+          // path2.closed = true;
+
+          // currentLayerRef.addChild(path2)
+
+          localPath = null
+          this.setCurrentPathSegment(null)
+
+          incompletePath.fullySelected = false
+          incompletePath.closed = true
+
+          currentLayerRef.addChild(incompletePath)
+          
+          // console.log('currentPaperScope.activeLayer 2 ' + this.currentPaperScope.project.activeLayer)
+          // console.log(paper.project.layers)
+          // console.log(paper.projects)
+          // console.log(this.currentPaperScope.project.layers)
+          // console.log(this.currentPaperScope.projects)
+          return false
+        }
+        else {
+          return true
+        }
+      } else if (event.key === 'space') {
           // Scale the path by 110%:
           // scribble.strokeColor = 'blue' 
           // Prevent the key event from bubbling
           return false;
       }
-    }
-
-    mainScope.view.onKeyUp = function(event) {
-      if (event.key === 'space') {
-        // Scale the path by 110%:
-        // scrsibble.strokeColor = 'green' 
-        // Prevent the key event from bubbling
-        return false;
+      else {
+        return true
       }
     }
 
-    vectorScope.view.draw()
+    // mainScope.view.onKeyUp = function(event) {
+    //   if (event.key === 'space') {
+    //     // Scale the path by 110%:
+    //     // scrsibble.strokeColor = 'green' 
+    //     // Prevent the key event from bubbling
+    //     return false;
+    //   }
+    // }
+    // var timeDelta = 0
+    // mainScope.view.onFrame = (event) => {
+    //   timeDelta += event.delta
+    //   if (timeDelta > (1.0 / 45.0)) {
+    //       path.rotate(3);
+
+    //       // console.log(event.count);
+
+    //       // The total amount of time passed since
+    //       // the first frame event in seconds:
+    //       // console.log(event.time);
+        
+    //       // The time passed in seconds since the last frame event:
+    //       // console.log(event.delta);
+    //       this.p5Scope.redraw()
+    //       timeDelta = 0
+    //   }
+    // }
+
+    this.currentPaperScope.view.draw()
   }
 
   componentDidMount  = () => {
