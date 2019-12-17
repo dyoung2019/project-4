@@ -1,0 +1,21 @@
+.layer-item {
+  background-color: white;
+  cursor: pointer;
+}
+
+.layer-item.layer-selected {
+  background-color: yellow;
+}
+
+.layer-item .delete-layer--btn {
+  background-color: lightcoral;
+}
+
+.layer-item .move-layer-up-btn {
+  background-color: lightpink;
+}
+
+.layer-item .move-layer-down-btn {
+  background-color: lightblue;
+}
+

@@ -11,6 +11,8 @@ class App extends React.Component {
     blendMode: "BLEND",
     backgroundColor: '#ccccccff',
     foregroundColor: '#ccccccff',
+    layers: ["apple", "banana", "celery"],
+    currentLayerIndex: 1
   }
 
   handleBackgroundColor = (colorHex) => {
@@ -33,13 +35,59 @@ class App extends React.Component {
     this.setState({blendMode: target.value})
   }
 
+  // LAYERS
+ 
+  swapLayers = (index1, index2) => {
+    let updatedLayers = this.state.layers.slice()
+
+    const tempValue = updatedLayers[index1] 
+    updatedLayers[index1] = updatedLayers[index2]
+    updatedLayers[index2] = tempValue
+    
+    this.setState({ layers: updatedLayers, currentLayerIndex: index2 })
+  }
+
+  handleMoveLayerUp = (index) => {
+    this.swapLayers(index, index + 1)
+  }
+
+  handleMoveLayerDown = (index) => {
+    this.swapLayers(index, index - 1)
+  }
+
+  handleAddLayer = () => {
+    let updatedLayers = this.state.layers.slice()
+    const noOfLayers = updatedLayers.length
+    updatedLayers.push(`Layer ${noOfLayers}`)
+
+    this.setState({ layers: updatedLayers} )
+  }
+
+  handleRemoveLayer = index => {
+    const updatedLayers = this.state.layers.slice()
+    updatedLayers.splice(index, 1)
+    this.setState({ layers: updatedLayers})
+  }
+
+  handleCurrentLayerIndex = (index) => {
+    this.setState({ currentLayerIndex: index} )
+  }
+
   render() {
     return (
       <div className="App">
         <header className="main-toolbar">
           Toolbar
         </header>
-        <LayersPanel />
+        <LayersPanel
+          layers={this.state.layers}
+          currentLayerIndex={this.state.currentLayerIndex}
+          handleAddLayer={this.handleAddLayer}
+          handleRemoveLayer={this.handleRemoveLayer}
+          handleMoveLayerUp={this.handleMoveLayerUp}
+          handleMoveLayerDown={this.handleMoveLayerDown}
+          handleCurrentLayerIndex={this.handleCurrentLayerIndex}
+          />
         <SubmenuBar 
           opacity={this.state.opacity}
           handleOpacity={this.handleOpacity}
