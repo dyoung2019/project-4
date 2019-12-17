@@ -3,6 +3,7 @@ import './App.css';
 import MainCanvas from './MainCanvas/MainCanvas'
 import LayersPanel from './LayersPanel/LayersPanel'
 import SubmenuBar from './SubmenuBar/SubmenuBar'
+import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 
 class App extends React.Component {
   state ={
@@ -41,9 +42,7 @@ class App extends React.Component {
         <section className="key-bindings-panel">
           Key Bindings
         </section>
-        <section className="source-info-panel">
-          Source Info
-        </section>
+        <SourceInfoPanel />
         <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} />
       </div>
     )
