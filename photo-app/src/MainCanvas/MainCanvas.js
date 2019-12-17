@@ -34,19 +34,31 @@ export default class MainCanvas extends React.Component {
     const generateBackground = (w, h) => {
       let bkgd  = p.createGraphics(w,h);
       // draw some stuff.
-      bkgd.background(255,0,0);
-      bkgd.stroke(255, 204, 0);
+
+      bkgd.noStroke()
+      // bkgd.background(0, 255, 0, 12) // green
       
-      for(var i = 0; i < p.width + 10; i += 10) {
-        bkgd.strokeWeight(i/40)
-        bkgd.line(i,0,i,400);
+      const squareSize = 35
+      const noOfColumns = Math.ceil(w / squareSize)
+      const noOfRows = Math.ceil(h / squareSize)
+    
+      for (let i = 0; i < noOfColumns; i++) {
+        for (let j = 0; j < noOfRows; j++) {
+          if ((i + j) % 2 === 0) {
+            bkgd.fill(64, 0); // transparent
+          } else {
+            bkgd.fill(255, 255); // white
+          }
+          bkgd.rect(i * squareSize, j * squareSize, squareSize, squareSize);
+        }
       }
+      
       return bkgd
     } 
 
     // create a p5.Graphics containing the image that will be masked
     const vectorMask = p.createGraphics(canvasDimensions[0],canvasDimensions[1]);
-    const source = generateBackground(imageDimensions[0], imageDimensions[1])
+    const source = generateBackground(canvasDimensions[0], canvasDimensions[1])
     // source.elt.id = "layer_0"
 
     return {sourceImage: source, vectorMask: vectorMask}
@@ -92,7 +104,7 @@ export default class MainCanvas extends React.Component {
       p.clear()
       p.background(220)
   
-      let opacity = 128
+      let opacity = this.props.opacity
       // STEP 1: layer 1 must be clear
       // vectorMask.clear()
       // p.background(0);
