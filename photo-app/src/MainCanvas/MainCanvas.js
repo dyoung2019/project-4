@@ -300,11 +300,23 @@ export default class MainCanvas extends React.Component {
       return false
     }
 
+    const calculateDelta = (pointA, pointB) => {
+      const dx = pointA.x - pointB.x
+      const dy = pointA.y - pointB.y
+
+      return [dx, dy]
+    } 
+
     const extendPathHandles = (segment, point) => {
-      let dx = segment.point.x - point.x
-      let dy = segment.point.y - point.y
+      let [dx, dy] = calculateDelta(segment.point, point)
 
       segment.handleIn = new this.currentPaperScope.Point(dx, dy)
+      segment.handleOut = new this.currentPaperScope.Point(-dx, -dy)
+    }
+    
+    const extendPathHandleIndependently = (segment, point) => {
+      let [dx, dy] = calculateDelta(segment.point, point)
+
       segment.handleOut = new this.currentPaperScope.Point(-dx, -dy)
     }
 
@@ -312,7 +324,12 @@ export default class MainCanvas extends React.Component {
       // console.log('mouse up :' + event.point);
       const segment = this.getCurrentPathSegment() 
       if (!!segment) {
-        extendPathHandles(segment, event.point)
+        if (event.modifiers.option) {
+          extendPathHandleIndependently(segment, event.point)
+        }
+        else {
+          extendPathHandles(segment, event.point)
+        }
       }
     }
 
