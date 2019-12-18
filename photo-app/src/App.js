@@ -1,9 +1,9 @@
 import React from 'react';
 import './App.css';
-import MainCanvas from './MainCanvas/MainCanvas'
 import LayersPanel from './LayersPanel/LayersPanel'
 import SubmenuBar from './SubmenuBar/SubmenuBar'
 import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
+import LayerComposition from './MainCanvas/LayerComposition';
 
 class App extends React.Component {
   state ={
@@ -105,7 +105,8 @@ class App extends React.Component {
           handleForegroundColor={this.handleForegroundColor}
           backgroundColor={this.state.backgroundColor}
           handleBackgroundColor={this.handleBackgroundColor} />
-        <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} />
+        {/* <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} /> */}
+        <LayerComposition opacity={this.state.opacity} layers={this.state.layers} />
       </div>
     )
   }

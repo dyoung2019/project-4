@@ -12,7 +12,7 @@ export default class LayersPanel extends React.Component {
         canMoveDown: false,
         moveLayerDown: () => this.props.handleMoveLayerDown(i),
         canRemove: false,
-        removeLayer: () => this.handleRemoveLayer(i),
+        removeLayer: () => this.props.handleRemoveLayer(i),
         isSelected: false
       }
     })

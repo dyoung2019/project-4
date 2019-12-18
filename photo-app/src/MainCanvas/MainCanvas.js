@@ -124,9 +124,9 @@ export default class MainCanvas extends React.Component {
       
       // DESTINATION SET COLOR AND OPACITY
       circleMask.stroke(255, 255, 255, opacity)
-      circleMask.fill(255, 255, 255, opacity)
+      // circleMask.fill(255, 255, 255, opacity)
 
-      circleMask.ellipse(p.mouseX, p.mouseY, 250);
+      // circleMask.ellipse(p.mouseX, p.mouseY, 250);
       circleMask.ellipse(0, 0, 250)
 
       // let mergeLayers = composeImages(layer_0, layer_1)
@@ -225,6 +225,7 @@ export default class MainCanvas extends React.Component {
     const newPath = new processingScope.Path()
     newPath.fullySelected = true
     this.incompletePathOnCurrentLayer = newPath
+    // this.currentActivePaperLayer.addChild(newPath)
     return newPath
   } 
 
@@ -247,6 +248,10 @@ export default class MainCanvas extends React.Component {
 
   getCurrentOpenPath = () => {
     return this.incompletePathOnCurrentLayer
+  }
+
+  setCurrentOpenPath = (path) => {
+    this.incompletePathOnCurrentLayer = path
   }
 
   closeCurrentLayerPath = () => {
@@ -327,7 +332,7 @@ export default class MainCanvas extends React.Component {
       // PUT DOWN NEXT POINT ON PATH
       const segment = this.insertEditablePointAtEndOfPath(openPath, event.point)
       this.setCurrentPathSegment(segment)
-      return false
+      // return false
     }
 
     const calculateDelta = (pointA, pointB) => {
@@ -367,30 +372,55 @@ export default class MainCanvas extends React.Component {
       this.setCurrentPathSegment(null)
     }
 
-    mainScope.view.onKeyDown = (event) => {
-      if (event.key === 'enter') {
+    // var tool = new vectorScope.Tool()
 
-        let incompletePath = this.getCurrentPathSegment()
+    // tool.onKeyDown = (event) => {
+    //   console.log('key down')
+      // if (event.key === 'enter') {
+
+      //   let incompletePath = this.getCurrentOpenPath()
+      //   if (incompletePath) {
+      //     // incompletePath.fillColor = 'white'
+      //     // this.setCurrentPathSegment(null)
+
+      //     // incompletePath.fullySelected = false
+      //     // incompletePath.closed = true
+
+      //     // this.currentActivePaperLayer.addChild(incompletePath)
+      //     // this.setCurrentOpenPath(null)
+          
+      //     // this.closeCurrentLayerPath()
+
+      //     return false
+      //   }
+      //   // else {
+      //   //   return true
+      //   // }
+      // } else if (event.key === 'space') {
+      //     // Scale the path by 110%:
+      //     // scribble.strokeColor = 'blue' 
+      //     // Prevent the key event from bubbling
+      //     return false;
+      // }
+      // else {
+      //   return true
+      // }
+    // }
+
+    mainScope.view.onKeyUp = (event) => {
+      if (event.key === 'enter') {
+        // Scale the path by 110%:
+        // scrsibble.strokeColor = 'green' 
+        // Prevent the key event from bubbling
+        console.log('enter up')
+
+        let incompletePath = this.getCurrentOpenPath()
         if (incompletePath) {
-          this.closeCurrentLayerPath()   
-          return false
+          this.closeCurrentLayerPath()
         }
-      } else if (event.key === 'space') {
-          // Scale the path by 110%:
-          // scribble.strokeColor = 'blue' 
-          // Prevent the key event from bubbling
-          return false;
+        return false;
       }
     }
-
-    // mainScope.view.onKeyUp = function(event) {
-    //   if (event.key === 'space') {
-    //     // Scale the path by 110%:
-    //     // scrsibble.strokeColor = 'green' 
-    //     // Prevent the key event from bubbling
-    //     return false;
-    //   }
-    // }
     // var timeDelta = 0
     // mainScope.view.onFrame = (event) => {
     //   timeDelta += event.delta
