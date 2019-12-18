@@ -6,8 +6,24 @@
   cursor: pointer;
 }
 
-.layer-item.layer-selected {
+.layer-item .layer-description {
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.layer-item.layer-selected .layer-description {
   background-color: yellow;
+  cursor: default;
+}
+
+.layer-item.layer-selected .layer-description:hover {
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.layer-item .layer-description:hover {
+  text-decoration: underline;
+  font-weight: 700;
 }
 
 .layer-item .delete-layer--btn {

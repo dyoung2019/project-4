@@ -6,24 +6,18 @@ import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 import LayerComposition from './MainCanvas/LayerComposition';
 
 class App extends React.Component {
-  state ={
-    opacity: 128,
-    blendMode: "BLEND",
-    backgroundColor: '#ccccccff',
-    foregroundColor: '#ccccccff',
-    layers: [ 
-      { 
-        layerName: "apple",
-        opacity: 255,
-        blendMode: 'BLEND'
-      }, 
-      { 
-        layerName: "banana",
-        opacity: 128,
-        blendMode: 'BLEND'
-      }
-    ],
-    currentLayerIndex: 1
+  constructor() {
+    super()
+    this.state ={
+      opacity: 128,
+      blendMode: "BLEND",
+      backgroundColor: '#ccccccff',
+      foregroundColor: '#ccccccff',
+      layers: [],
+      currentLayerIndex: null,
+    }
+    // FOR MATCHING
+    this.nextSortLayerId = 0
   }
 
   handleBackgroundColor = (colorHex) => {
@@ -89,13 +83,17 @@ class App extends React.Component {
     const layerItem  = { 
       layerName : `Layer ${noOfLayers}`,
       opacity: 255,
-      blendMode: 'BLEND'
+      blendMode: 'BLEND',
+      sortLayerId: this.nextSortLayerId
     }
+    this.nextSortLayerId += 1
+
 
     const updatedState = { layers: [...this.state.layers, layerItem ] }
     if (this.state.currentLayerIndex === null) {
       updatedState.currentLayerIndex = noOfLayers
     }
+
 
     this.setState(updatedState)
   }
@@ -150,7 +148,9 @@ class App extends React.Component {
           backgroundColor={this.state.backgroundColor}
           handleBackgroundColor={this.handleBackgroundColor} />
         {/* <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} /> */}
-        <LayerComposition opacity={this.state.opacity} layers={this.state.layers} />
+        <LayerComposition 
+          currentLayerIndex={this.state.currentLayerIndex} 
+          layers={this.state.layers} />
       </div>
     )
   }

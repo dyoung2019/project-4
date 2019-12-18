@@ -1,20 +1,52 @@
 import React from 'react'
 import ProcessingContainer from './ProcessingContainer'
 
-function refreshCanvasLayers(beforeLayers, afterLayers) {
-  // beforeLayers.forEach(layer => {
-  //   console.log('B ' + layer)
-  // })
+function refreshCanvasLayers(canvasLayers, previousLayers, incomingLayers) {
+  // INSERT 
+  const existingLayers = {}
+  canvasLayers.forEach((layer, i) => {
+    existingLayers[layer.sortLayerId] = i
+  })
 
-  // afterLayers.forEach(layer => {
-  //   console.log('A ' + layer)
-  // })
+  const layersToAdd = []
+  const updatedLayers = []
+  incomingLayers.forEach((layer, i) => {
+    const key = layer.sortLayerId
+    // console.log('IN ' + layer.sortLayerId)
+    let found = existingLayers[key]
+    if (found === undefined) {
+      const newLayer = {sortLayerId: key, index: i}
+      // create new layer with p5 + paper.js
+      layersToAdd.push(newLayer)
+
+      updatedLayers.push(newLayer)
+    } else {
+      const existingLayer = canvasLayers[found]
+      updatedLayers.push(existingLayer)
+      delete existingLayers[key]
+    }
+  })
+
+  const layersToDelete = Object.entries(existingLayers).map(el => {
+    const [ sortLayerId, index ] = el
+    return { sortLayerId: sortLayerId, index: index}
+  })
+  
+  layersToAdd.forEach(layer => {
+    console.log(`ADD ${layer.index} ${layer.sortLayerId}`)
+  })
+
+  layersToDelete.forEach(layer => {
+    console.log(`DEL ${layer.index} ${layer.sortLayerId}`)
+  })
+
+  return updatedLayers
 }
 
 export default class LayerComposition extends React.Component {
   constructor(props) {
     super()
-    this.canvasLayers = refreshCanvasLayers([], props.layers)
+    this.canvasLayers = refreshCanvasLayers([], [], props.layers)
   }
 
   generateBackground = (p, w, h) => {
@@ -90,7 +122,7 @@ export default class LayerComposition extends React.Component {
   }
 
   componentDidUpdate(previousProps) {
-    this.canvasLayers = refreshCanvasLayers(previousProps.layers, this.props.layers)
+    this.canvasLayers = refreshCanvasLayers(this.canvasLayers, previousProps.layers, this.props.layers)
   }
   
   render() {

@@ -6,7 +6,7 @@ export default function LayerItem(props) {
 
   return (
     <div className={layerClass}>
-      <div key={props.layerIndex} onClick={() => props.handleSelectionIndex(props.layerIndex)}>
+      <div className="layer-description" key={props.layerIndex} onClick={() => props.handleSelectionIndex(props.layerIndex)}>
         {props.layerName} - {props.opacity} - {props.blendMode}
       </div>
       <div>
