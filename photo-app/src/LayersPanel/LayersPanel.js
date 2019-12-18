@@ -8,6 +8,7 @@ export default class LayersPanel extends React.Component {
         layerIndex: i,
         layerName: layer.layerName,
         opacity: layer.opacity,
+        blendMode: layer.blendMode,
         canMoveUp: false,
         moveLayerUp: () => this.props.handleMoveLayerUp(i),
         canMoveDown: false,
@@ -18,21 +19,23 @@ export default class LayersPanel extends React.Component {
       }
     })
 
-    const selectedLayer = formattedLayers[selectedIndex]
-    selectedLayer.canMoveDown = (selectedIndex > 0)
-    selectedLayer.canMoveUp = (selectedIndex < layers.length - 1)
-    selectedLayer.canRemove = true
-    selectedLayer.isSelected = true
+    if (selectedIndex !== null) {
+      const selectedLayer = formattedLayers[selectedIndex]
+      selectedLayer.canMoveDown = (selectedIndex > 0)
+      selectedLayer.canMoveUp = (selectedIndex < layers.length - 1)
+      selectedLayer.canRemove = true
+      selectedLayer.isSelected = true
+    }
 
     return formattedLayers.reverse()
   }
 
-  filterSetSelectionIndexEvents = (index, e) => {
-    // ONLY ACCEPT MOUSE CLICK IF PARENT 'layer-item' raises event
-    if (e && e.target.classList.contains('layer-item')) {
-      this.props.handleCurrentLayerIndex(index)
-    }
-  }
+  // filterSetSelectionIndexEvents = (index, e) => {
+  //   // ONLY ACCEPT MOUSE CLICK IF PARENT 'layer-item' raises event
+  //   // if (e && e.target.classList.contains('layer-item')) {
+  //     this.props.handleCurrentLayerIndex(index)
+  //   // }
+  // }
 
   render() {
     const layers = this.getFormattedLayers(this.props.currentLayerIndex, this.props.layers)
@@ -41,39 +44,39 @@ export default class LayersPanel extends React.Component {
       <section className="layers-panel">
         <h2>Layers</h2>
         <button onClick={this.props.handleAddLayer}>Add Layer</button>
-        <ul>
-          {
-            layers.map(displayLayer => {
-              const {
-                layerIndex, 
-                layerName,
-                opacity,
-                canMoveUp, 
-                moveLayerUp, 
-                canMoveDown, 
-                moveLayerDown,
-                canRemove, 
-                removeLayer,
-                isSelected
-              } = displayLayer
-    
-              return <LayerItem 
-                key={layerIndex}
-                isSelected={isSelected}
-                handleSelectionIndex={this.filterSetSelectionIndexEvents}
-                layerIndex={layerIndex} 
-                layerName={layerName} 
-                opacity={opacity}
-                canMoveUp={canMoveUp}
-                moveLayerUp={moveLayerUp}
-                canMoveDown={canMoveDown} 
-                moveLayerDown={moveLayerDown} 
-                canRemove={canRemove}
-                removeLayer={removeLayer} />
-              }
-            )
-          }
-        </ul>
+        {
+          layers.map(displayLayer => {
+            const {
+              layerIndex, 
+              layerName,
+              opacity,
+              blendMode,
+              canMoveUp, 
+              moveLayerUp, 
+              canMoveDown, 
+              moveLayerDown,
+              canRemove, 
+              removeLayer,
+              isSelected
+            } = displayLayer
+  
+            return <LayerItem 
+              key={layerIndex}
+              isSelected={isSelected}
+              handleSelectionIndex={this.props.handleCurrentLayerIndex}
+              layerIndex={layerIndex} 
+              layerName={layerName} 
+              opacity={opacity}
+              blendMode={blendMode}
+              canMoveUp={canMoveUp}
+              moveLayerUp={moveLayerUp}
+              canMoveDown={canMoveDown} 
+              moveLayerDown={moveLayerDown} 
+              canRemove={canRemove}
+              removeLayer={removeLayer} />
+            }
+          )
+        }
       </section>
     )
   }

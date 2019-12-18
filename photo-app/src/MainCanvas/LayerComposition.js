@@ -2,13 +2,13 @@ import React from 'react'
 import ProcessingContainer from './ProcessingContainer'
 
 function refreshCanvasLayers(beforeLayers, afterLayers) {
-  beforeLayers.forEach(layer => {
-    console.log('B ' + layer)
-  })
+  // beforeLayers.forEach(layer => {
+  //   console.log('B ' + layer)
+  // })
 
-  afterLayers.forEach(layer => {
-    console.log('A ' + layer)
-  })
+  // afterLayers.forEach(layer => {
+  //   console.log('A ' + layer)
+  // })
 }
 
 export default class LayerComposition extends React.Component {

@@ -14,11 +14,13 @@ class App extends React.Component {
     layers: [ 
       { 
         layerName: "apple",
-        opacity: 255
+        opacity: 255,
+        blendMode: 'BLEND'
       }, 
       { 
         layerName: "banana",
-        opacity: 128
+        opacity: 128,
+        blendMode: 'BLEND'
       }
     ],
     currentLayerIndex: 1
@@ -32,16 +34,34 @@ class App extends React.Component {
     this.setState({ foregroundColor: colorHex })
   }
 
-  handleOpacity = (event) => {
-    const target = event.target
+  handleLayerNameChange = (layerIndex, previousState, name) => {
+    const updatedLayers = [...this.state.layers]
 
-    this.setState({ opacity: Number(target.value)})
+    const modifiedLayer = {...previousState}
+    modifiedLayer.layerName = name
+    updatedLayers[layerIndex] = modifiedLayer
+
+    this.setState( { layers: updatedLayers} )
+  }  
+
+  handleLayerOpacityChange = (layerIndex, previousState, opacity) => {
+    const updatedLayers = [...this.state.layers]
+
+    const modifiedLayer = {...previousState}
+    modifiedLayer.opacity = opacity
+    updatedLayers[layerIndex] = modifiedLayer
+
+    this.setState( { layers: updatedLayers} )
   }
 
-  handleBlendMode = (event) => {
-    const target = event.target
+  handleLayerBlendModeChange = (layerIndex, previousState, blendMode) => {
+    const updatedLayers = [...this.state.layers]
 
-    this.setState({blendMode: target.value})
+    const modifiedLayer = {...previousState}
+    modifiedLayer.blendMode = blendMode
+    updatedLayers[layerIndex] = modifiedLayer
+
+    this.setState( { layers: updatedLayers} )
   }
 
   // LAYERS
@@ -65,19 +85,31 @@ class App extends React.Component {
   }
 
   handleAddLayer = () => {
-    const layers = this.state.layers
-    const noOfLayers = layers.length
+    const noOfLayers = this.state.layers.length
     const layerItem  = { 
       layerName : `Layer ${noOfLayers}`,
-      opacity: 255
+      opacity: 255,
+      blendMode: 'BLEND'
     }
-    this.setState({ layers: [...layers, layerItem ] } )
+
+    const updatedState = { layers: [...this.state.layers, layerItem ] }
+    if (this.state.currentLayerIndex === null) {
+      updatedState.currentLayerIndex = noOfLayers
+    }
+
+    this.setState(updatedState)
   }
 
   handleRemoveLayer = index => {
     const updatedLayers = this.state.layers.slice()
     updatedLayers.splice(index, 1)
-    this.setState({ layers: updatedLayers})
+
+    // WAS INDEX 
+    var nextIndex = updatedLayers.length > 0
+      ? updatedLayers.length - 1 
+      : null
+
+    this.setState({ layers: updatedLayers, currentLayerIndex: nextIndex} )
   }
 
   handleCurrentLayerIndex = (index) => {
@@ -102,10 +134,9 @@ class App extends React.Component {
         <SubmenuBar 
           currentLayerIndex={this.state.currentLayerIndex}
           layers={this.state.layers}
-          opacity={this.state.opacity}
-          handleOpacity={this.handleOpacity}
-          blendMode={this.state.blendMode}
-          handleBlendMode={this.handleBlendMode}
+          onLayerOpacityChange={this.handleLayerOpacityChange}
+          onLayerBlendModeChange={this.handleLayerBlendModeChange}
+          onLayerNameChange={this.handleLayerNameChange}
           />     
         <section className="compositions-panel">
           Compositions
