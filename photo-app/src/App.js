@@ -11,7 +11,16 @@ class App extends React.Component {
     blendMode: "BLEND",
     backgroundColor: '#ccccccff',
     foregroundColor: '#ccccccff',
-    layers: ["apple", "banana", "celery"],
+    layers: [ 
+      { 
+        layerName: "apple",
+        opacity: 255
+      }, 
+      { 
+        layerName: "banana",
+        opacity: 128
+      }
+    ],
     currentLayerIndex: 1
   }
 
@@ -56,11 +65,13 @@ class App extends React.Component {
   }
 
   handleAddLayer = () => {
-    let updatedLayers = this.state.layers.slice()
-    const noOfLayers = updatedLayers.length
-    updatedLayers.push(`Layer ${noOfLayers}`)
-
-    this.setState({ layers: updatedLayers} )
+    const layers = this.state.layers
+    const noOfLayers = layers.length
+    const layerItem  = { 
+      layerName : `Layer ${noOfLayers}`,
+      opacity: 255
+    }
+    this.setState({ layers: [...layers, layerItem ] } )
   }
 
   handleRemoveLayer = index => {
@@ -89,6 +100,8 @@ class App extends React.Component {
           handleCurrentLayerIndex={this.handleCurrentLayerIndex}
           />
         <SubmenuBar 
+          currentLayerIndex={this.state.currentLayerIndex}
+          layers={this.state.layers}
           opacity={this.state.opacity}
           handleOpacity={this.handleOpacity}
           blendMode={this.state.blendMode}

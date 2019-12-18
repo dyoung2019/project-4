@@ -1,6 +1,11 @@
 import React from 'react'
 
 export default function SubmenuBar(props) {
+  const layers = props.layers
+  const currentLayerIndex = props.currentLayerIndex
+
+  const currentLayer = layers[currentLayerIndex]
+
   return (
     <section className="sub-toolbar">
       toolbar
@@ -10,10 +15,14 @@ export default function SubmenuBar(props) {
       <input type="checkbox" name="layerOn" id="layerOn"/>
       <label htmlFor="layerOn">Layer On </label>
       <input type="checkbox" name="maskOn" id="maskOn"/>
+      <label htmlFor="layerName">Layer Name: </label>
+      <input type="text" name="layerName" id="layerName" value={currentLayer.layerName}/>
       <label htmlFor="maskOn">Mask On</label>
       <label htmlFor="opacity">Opacity</label>
-      <input type="number" name="opacity" id="opacity" min="0" max="255" onChange={props.handleOpacity} value={props.opacity}/>
+      <input type="number" name="opacity" id="opacity" min="0" max="255" value={currentLayer.opacity}/>
+      {/* <input type="number" name="opacity" id="opacity" min="0" max="255" onChange={props.handleOpacity} value={props.opacity}/> */}
       <label htmlFor="blendMode">Blend mode</label>
+      {/* <select name="blendMode" id="blendMode" onChange={props.handleBlendMode} value={props.blendMode}> */}
       <select name="blendMode" id="blendMode" onChange={props.handleBlendMode} value={props.blendMode}>
         <option value="BLEND">Blend</option>
         <option value="ADD">Add</option>

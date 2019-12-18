@@ -6,7 +6,8 @@ export default class LayersPanel extends React.Component {
     const formattedLayers = layers.map((layer, i) => {
       return {
         layerIndex: i,
-        layerName: layer,
+        layerName: layer.layerName,
+        opacity: layer.opacity,
         canMoveUp: false,
         moveLayerUp: () => this.props.handleMoveLayerUp(i),
         canMoveDown: false,
@@ -45,7 +46,8 @@ export default class LayersPanel extends React.Component {
             layers.map(displayLayer => {
               const {
                 layerIndex, 
-                layerName, 
+                layerName,
+                opacity,
                 canMoveUp, 
                 moveLayerUp, 
                 canMoveDown, 
@@ -61,6 +63,7 @@ export default class LayersPanel extends React.Component {
                 handleSelectionIndex={this.filterSetSelectionIndexEvents}
                 layerIndex={layerIndex} 
                 layerName={layerName} 
+                opacity={opacity}
                 canMoveUp={canMoveUp}
                 moveLayerUp={moveLayerUp}
                 canMoveDown={canMoveDown} 
