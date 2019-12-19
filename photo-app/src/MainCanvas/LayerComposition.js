@@ -3,6 +3,7 @@ import ProcessingContainer from './ProcessingContainer'
 import figureOutLayerChanges from '../Helpers/figureOutLayerChanges'
 import { insertNewLayersIntoCollection } from '../Helpers/insertNewLayersIntoCollection'
 import destroyUnnecessaryLayersFromCollection from '../Helpers/destroyUnnecessaryLayersFromCollection'
+import paper from 'paper'
 
 const paintTransparentCheckboardPattern = (bkgd, w, h) => {
   const squareSize = 35
@@ -32,6 +33,12 @@ export default class LayerComposition extends React.Component {
 
     this.canvasLayers = this.refreshCanvasLayers([], props.layers, this.pScope, props.canvasWidth, props.canvasHeight)
     this.blendModes = {}
+
+    // PEN 
+    this.mirrorPaperScope = null
+    this.incompletePathOnCurrentLayer = null
+    this.lastPathSegment = null
+    this.currentActivePaperLayer = null 
   }
 
   refreshCanvasLayers = (layersBefore, layerAfters, pScope, width, height) => {
@@ -72,6 +79,9 @@ export default class LayerComposition extends React.Component {
       const canvasHeight = this.props.canvasHeight
 
       this.finalCompositionLayer = p.createCanvas(canvasWidth, canvasHeight)
+
+      this.mirrorPaperScope = this.setupMirrorScope(this.finalCompositionLayer)
+
       // create a p5.Graphics containing the image that will be masked
       // this.layers = [this.generateBackground(p, w, h), p.createGraphics(w,h)]
       this.transparentCheckboardBackground = createTransparentCheckboardBackground(canvasWidth, canvasHeight)
@@ -100,8 +110,8 @@ export default class LayerComposition extends React.Component {
     p.draw = () => {
       p.clear()
       // STEP 0: clear background color on canvas
-      const backgroundColor = p.color(this.props.backgroundColor);
-      p.background(backgroundColor)
+      // const backgroundColor = p.color(this.props.backgroundColor);
+      // p.background(backgroundColor)
       // overlay
       // p.background(0);
   
@@ -138,9 +148,9 @@ export default class LayerComposition extends React.Component {
    
         // subMask.background(opaqueColor)
         
-        vectorMask.clear()
+        // vectorMask.clear()
         // const opaqueColor = vectorMask.color(maxGreyscaleColor, opacity)
-        vectorMask.background(maxGreyscaleColor, layerVariable.opacity)
+        // vectorMask.background(maxGreyscaleColor, layerVariable.opacity)
         // debugger;
 
         const subMask  = vectorMask.get(0, 0, vectorMask.width, vectorMask.height)
@@ -148,8 +158,10 @@ export default class LayerComposition extends React.Component {
         transformedSource.mask(subMask)
         
         let blendMode = this.blendModes[layerVariable.blendMode]
-        p.blendMode(blendMode)
-        p.image(transformedSource, 0 ,0)
+        // p.blendMode(blendMode)
+        p.blendMode(p.BLEND)
+        p.image(vectorMask, 0 ,0)
+        // p.image(transformedSource, 0 ,0)
       }
 
       // let opacity = this.props.opacity
@@ -202,9 +214,145 @@ export default class LayerComposition extends React.Component {
     }
   }
 
-  saveContext = (ctx) => {
-    this.ctx = ctx;
-    this.p5Scope = new window.p5(this.handleSketch, this.ctx)
+  setupMirrorScope = (canvas) => {
+    const hasActivePaperLayerScope = () => {
+      return this.props.currentLayerIndex !== null
+    }
+
+    const getCurrentOpenPath = () => {
+      return this.incompletePathOnCurrentLayer
+    }
+
+    const getActivePaperLayerScope = () => {
+      const selectedIndex = this.props.currentLayerIndex
+      const selectedLayer = this.canvasLayers[selectedIndex]
+      return selectedLayer.paperScope
+    }
+
+    const performHitTest = (activePaperScope, point) => {
+      // CUSTOM LATER
+      const hitOptions = {
+        segments: true,
+        stroke: true,
+        fill: true,
+        tolerance: 5
+      }
+  
+      return activePaperScope.project.hitTest(point, hitOptions)
+    }    
+
+    const setCurrentPathSegment = segment => {
+      this.lastPathSegment  = segment
+    }
+
+    const closeCurrentLayerPath = () => {
+      let incompletePath = this.incompletePathOnCurrentLayer
+      if (!!incompletePath) {
+        incompletePath.fillColor = 'white'
+        incompletePath.fullySelected = false
+        incompletePath.closed = true
+        // FREE 
+        this.incompletePathOnCurrentLayer = null
+        setCurrentPathSegment(null)
+        this.currentActivePaperLayer.addChild(incompletePath)
+      }
+    }
+
+    const createNewOpenedPath = (activePaperScope) => {
+      const newPath = new activePaperScope.Path()
+      newPath.fullySelected = true
+      this.incompletePathOnCurrentLayer = newPath
+      // this.currentActivePaperLayer.addChild(newPath)
+      return newPath
+    } 
+    
+    const insertEditablePointAtEndOfPath = (path, point) => {
+      let endPoint = this.lastPathSegment 
+      if (endPoint === null) {
+        endPoint = path.add(point)
+        endPoint.selected = true;
+      }
+      return endPoint
+    }
+
+    const setActivePaperScopeLayer = (scope) => {
+      this.currentActivePaperLayer = scope.project.activeLayer
+    }
+
+    const mirrorPaperScope = new paper.PaperScope()
+    mirrorPaperScope.setup(canvas.elt)
+    canvas.attribute('resize', 'true')
+    canvas.attribute('hidpi', 'false')
+    canvas.addClass('paper-canvas')
+
+    mirrorPaperScope.view.onMouseDown = (event) => {
+      if (hasActivePaperLayerScope()) {
+        let activePaperScope = getActivePaperLayerScope()
+        setActivePaperScopeLayer(activePaperScope)
+        
+        // console.log('onMouseDown')
+
+        // let openPath = getCurrentOpenPath()
+        // const hitResult = performHitTest(activePaperScope, event.point)
+
+        // if (openPath && hitResult) {
+        //   const path = hitResult.item;
+        //   const selectedSegment = hitResult.segment
+        //   const frontEndOfPath = path.segments[0]
+
+        //   // UNLESS HIT TEST GETS FILL THEN STAGE FOR PATH FOR MOVING
+        //   if (hitResult.type === 'segment' && selectedSegment === frontEndOfPath) {
+        //     // AUTO CLOSE SEGMENT
+        //     closeCurrentLayerPath()
+        //     return false
+        //   }
+        // }
+        // else if (!openPath) {
+        //   // CREATE NEW PATH 
+        //   openPath = createNewOpenedPath(activePaperScope)
+        // }
+
+        let path = new activePaperScope.Path.Circle(event.point, 15)
+        path.strokeColor = 'black';
+        path.fillColor = this.props.foregroundColor
+        path.closed = true;
+
+        this.currentActivePaperLayer.addChild(path)
+
+        // PUT DOWN NEXT POINT ON PATH
+        // const segment = insertEditablePointAtEndOfPath(openPath, event.point)
+        // setCurrentPathSegment(segment)
+
+        // console.log('segment add')
+        return false
+      }
+    }
+
+    mirrorPaperScope.view.onMouseDrag = (event) => {
+      if (hasActivePaperLayerScope()) {
+        // console.log('onMouseDrag')
+      }
+    }
+
+    mirrorPaperScope.view.onMouseUp = (event) => {
+      if (hasActivePaperLayerScope()) {
+        // console.log('onMouseUp')
+      }
+    }
+
+    mirrorPaperScope.view.onKeyUp = (event) => {
+      if (hasActivePaperLayerScope()) {
+        // console.log('onKeyUp')
+      }
+    }
+
+    return mirrorPaperScope
+  }
+
+  saveContext = (divContainer) => {
+    // div
+    this.divContainer = divContainer;
+    this.p5Scope = new window.p5(this.handleSketch, this.divContainer)
   }
 
   componentDidUpdate(previousProps) {

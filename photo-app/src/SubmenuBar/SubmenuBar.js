@@ -51,7 +51,7 @@ export default class SubmenuBar extends React.Component {
         <input type="text" name="layerName" id="layerName" value={layerName} onChange={e => this.handleLayerNameChange(currentLayerIndex, currentLayer, e)} />
         <label htmlFor="opacity">Opacity</label>
         {/* <input type="number" name="opacity" id="opacity" min="0" max="255" value={currentLayer.opacity}/> */}
-        <input type="number" name="opacity" id="opacity" min="0" max="255" onChange={e => this.handleLayerOpacityChange(currentLayerIndex, currentLayer, e)} value={layerOpacity}/>
+        <input type="range" name="opacity" id="opacity" min="0" max="255" onChange={e => this.handleLayerOpacityChange(currentLayerIndex, currentLayer, e)} value={layerOpacity}/>
         <label htmlFor="blendMode">Blend mode</label>
         {/* <select name="blendMode" id="blendMode" onChange={props.handleBlendMode} value={props.blendMode}> */}
         <select name="blendMode" id="blendMode" onChange={(e) =>

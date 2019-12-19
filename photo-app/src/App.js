@@ -4,7 +4,9 @@ import LayersPanel from './LayersPanel/LayersPanel'
 import SubmenuBar from './SubmenuBar/SubmenuBar'
 import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 import LayerComposition from './MainCanvas/LayerComposition';
+import MainCanvas from './MainCanvas/MainCanvas';
 import Toolbar from './Toolbar/Toolbar'
+
 
 class App extends React.Component {
   constructor() {
@@ -12,8 +14,6 @@ class App extends React.Component {
     this.state ={
       canvasWidth: 200,
       canvasHeight: 200,
-      opacity: 128,
-      blendMode: "BLEND",
       backgroundColor: '#ccccccff',
       foregroundColor: '#ccccccff',
       layers: [],
@@ -86,7 +86,7 @@ class App extends React.Component {
     const layerItem  = { 
       layerName : `Layer ${noOfLayers}`,
       opacity: 255,
-      blendMode: 'BLEND',
+      blendMode: 'ADD',
       sortLayerId: this.nextSortLayerId
     }
     this.nextSortLayerId += 1
@@ -161,12 +161,13 @@ class App extends React.Component {
           handleForegroundColor={this.handleForegroundColor}
           backgroundColor={this.state.backgroundColor}
           handleBackgroundColor={this.handleBackgroundColor} />
-        {/* <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} /> */}
+        {/* <MainCanvas imageWidth="400" imageHeight="300" opacity="255" /> */}
         <LayerComposition 
           currentLayerIndex={this.state.currentLayerIndex} 
           layers={this.state.layers} 
           canvasWidth={this.state.canvasWidth}
           canvasHeight={this.state.canvasHeight}
+          foregroundColor={this.state.foregroundColor}
           backgroundColor={this.state.backgroundColor}
           />
       </div>

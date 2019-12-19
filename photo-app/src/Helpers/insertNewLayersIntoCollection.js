@@ -12,6 +12,7 @@ const createVectorMask = (pScope, width, height) => {
 
   sourceImage_1.attribute('resize', 'true')
   sourceImage_1.attribute('hidpi', 'false')
+  sourceImage_1.addClass('paper-canvas')
   return sourceImage_1
 }
 
