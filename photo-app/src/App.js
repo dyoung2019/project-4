@@ -4,11 +4,14 @@ import LayersPanel from './LayersPanel/LayersPanel'
 import SubmenuBar from './SubmenuBar/SubmenuBar'
 import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 import LayerComposition from './MainCanvas/LayerComposition';
+import Toolbar from './Toolbar/Toolbar'
 
 class App extends React.Component {
   constructor() {
     super()
     this.state ={
+      canvasWidth: 200,
+      canvasHeight: 200,
       opacity: 128,
       blendMode: "BLEND",
       backgroundColor: '#ccccccff',
@@ -20,11 +23,11 @@ class App extends React.Component {
     this.nextSortLayerId = 0
   }
 
-  handleBackgroundColor = (colorHex) => {
+  handleBackgroundColor = colorHex => {
     this.setState({ backgroundColor: colorHex })
   }
 
-  handleForegroundColor = (colorHex) => {
+  handleForegroundColor = colorHex => {
     this.setState({ foregroundColor: colorHex })
   }
 
@@ -70,11 +73,11 @@ class App extends React.Component {
     this.setState({ layers: updatedLayers, currentLayerIndex: index2 })
   }
 
-  handleMoveLayerUp = (index) => {
+  handleMoveLayerUp = index => {
     this.swapLayers(index, index + 1)
   }
 
-  handleMoveLayerDown = (index) => {
+  handleMoveLayerDown = index => {
     this.swapLayers(index, index - 1)
   }
 
@@ -110,16 +113,27 @@ class App extends React.Component {
     this.setState({ layers: updatedLayers, currentLayerIndex: nextIndex} )
   }
 
-  handleCurrentLayerIndex = (index) => {
-    this.setState({ currentLayerIndex: index} )
+  handleCurrentLayerIndex = index => {
+    this.setState( { currentLayerIndex: index} )
+  }
+
+  handleCanvasWidth = width => {
+    this.setState({ canvasWidth: width} )
+  }
+
+  handleCanvasHeight = height => {
+    this.setState( { canvasHeight: height} )
   }
 
   render() {
     return (
       <div className="App">
-        <header className="main-toolbar">
-          Toolbar
-        </header>
+        <Toolbar 
+          canvasWidth={this.state.canvasWidth}
+          canvasHeight={this.state.canvasHeight}
+          onCanvasWidthChange={this.handleCanvasWidth}
+          onCanvasHeightChange={this.handleCanvasHeight}
+        />
         <LayersPanel
           layers={this.state.layers}
           currentLayerIndex={this.state.currentLayerIndex}
@@ -150,7 +164,10 @@ class App extends React.Component {
         {/* <MainCanvas imageWidth="400" imageHeight="300" opacity={this.state.opacity} /> */}
         <LayerComposition 
           currentLayerIndex={this.state.currentLayerIndex} 
-          layers={this.state.layers} />
+          layers={this.state.layers} 
+          canvasWidth={this.state.canvasWidth}
+          canvasHeight={this.state.canvasHeight}
+          />
       </div>
     )
   }
