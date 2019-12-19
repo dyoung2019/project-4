@@ -1,8 +1,9 @@
 .layer-item {
-  background-color: white;
+  background-color: var(--color-3);
   width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   padding: 12px;
   border: 2px solid var(--color-1);
@@ -18,7 +19,7 @@
 }
 
 .layer-item.layer-selected {
-  background-color: var(--color-4);
+  background-color: var(--color-2);
 }
 
 .layer-item.layer-selected .layer-description {
@@ -36,14 +37,23 @@
 }
 
 .layer-item .delete-layer-btn {
-  background-color: var(--color-2);
+  background-color: var(--color-4);
+  fill: var(--color-1);
+  border: 0;
 }
 
-.layer-item .move-layer-up-btn {
-  background-color: var(--color-2);
+.layer-item .delete-layer-btn:hover {
+  background-color: var(--color-1);
+  fill: var(--color-3);
 }
 
-.layer-item .move-layer-down-btn {
-  background-color: var(--color-2);
+.layer-item .move-layers-btn {
+  fill: var(--color-3);
+  background-color: transparent;
+  border: 0;
+}
+
+.layer-item .move-layers-btn:hover {
+  fill: var(--color-1);
 }
 

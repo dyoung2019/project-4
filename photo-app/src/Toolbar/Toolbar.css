@@ -60,10 +60,11 @@
 .main-toolbar .tool-icon:hover,
 .main-toolbar .toolbar-icon:hover {
   background-color: var(--color-3);
-  border-right: 0.25rem solid var(--color-4);
+  cursor: pointer;
 }
 
 .main-toolbar .tool-icon:hover {
+  border-right: 0.25rem solid var(--color-4);
   border-left: 0.25rem solid var(--color-4);
 }
 
@@ -79,4 +80,19 @@
 .main-toolbar .tool-icon:hover svg {
   fill: var(--color-1);
   border-bottom: 0.25rem solid var(--color-1);
+}
+
+.main-toolbar .tool-icon.tool-selected {
+  background-color: var(--color-3);
+  cursor: default;
+}
+
+.main-toolbar .tool-icon.tool-selected svg {
+  fill: var(--color-1);
+  border-bottom: 0.25rem solid var(--color-1);
+  transform: scale3d(0.9, 0.9, 1.0);
+}
+
+.main-toolbar .tool-icon.tool-selected div {
+  color: var(--color-1);
 }

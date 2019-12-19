@@ -48,5 +48,6 @@
 
 .simple-color-picker .picker-container.picker-visible {
   display: block;
+  position: absolute;
   margin-top: 0.5em;
 }

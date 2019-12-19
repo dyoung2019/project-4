@@ -14,6 +14,10 @@ class App extends React.Component {
   constructor() {
     super()
     this.state ={
+      toolMode: null,
+      maskToggle: false,
+      imageToggle: false,
+      shapeToggle: false,
       canvasWidth: 200,
       canvasHeight: 200,
       backgroundColor: '#ccccccff',
@@ -127,6 +131,26 @@ class App extends React.Component {
     this.setState( { canvasHeight: height} )
   }
 
+  handleImageToggleButton = event => {
+    console.log('image')
+  }
+
+  handleShapeToggleButton = event => {
+    console.log('shape')
+  }
+
+  handleMaskToggleButton = event => {
+    console.log('mask')
+  }
+
+  handleSelectionToolClicked = () => {
+    this.setState({toolMode: 'SELECTION'})
+  }
+
+  handlePenToolClicked = () => {
+    this.setState({toolMode: 'PEN'})
+  }
+
   render() {
     return (
       <div className="App">
@@ -135,6 +159,9 @@ class App extends React.Component {
           canvasHeight={this.state.canvasHeight}
           onCanvasWidthChange={this.handleCanvasWidth}
           onCanvasHeightChange={this.handleCanvasHeight}
+          toolMode={this.state.toolMode}
+          onSelectionToolClicked={this.handleSelectionToolClicked}
+          onPenToolClicked={this.handlePenToolClicked}
         />
         <LayersPanel
           layers={this.state.layers}
@@ -151,6 +178,9 @@ class App extends React.Component {
           onLayerOpacityChange={this.handleLayerOpacityChange}
           onLayerBlendModeChange={this.handleLayerBlendModeChange}
           onLayerNameChange={this.handleLayerNameChange}
+          onImageToggleButton={this.handleImageToggleButton}
+          onShapeToggleButton={this.handleShapeToggleButton}
+          onMaskToggleButton={this.handleMaskToggleButton}
           />     
         <CompositionsPanel />
         <KeyBindingsPanel />

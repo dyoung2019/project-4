@@ -23,7 +23,7 @@ export default class SubmenuBar extends React.Component {
     const target = event.target
     
     this.props.onLayerBlendModeChange(currentLayerIndex, currentLayer, target.value)
-  } 
+  }
 
   render() {
     const allLayers = this.props.layers
@@ -43,15 +43,15 @@ export default class SubmenuBar extends React.Component {
     return (
       <section className="sub-toolbar">
         <div className="sub-toolbar-container">
-          <div className="image-toggle-btn toggle-btn-container">
+          <div className="image-toggle-btn toggle-btn-container" onClick={this.props.onImageToggleButton} >
             <PictureIcon width="4.5rem" height="4.5rem"></PictureIcon>
             <div>IMAGE</div>
           </div>
-          <div className="shape-toggle-btn toggle-btn-container">
+          <div className="shape-toggle-btn toggle-btn-container" onClick={this.props.onShapeToggleButton}>
             <ShapesIcon width="4.5rem" height="4.5rem"/>
             <div>SHAPE</div>
           </div>
-          <div className="mask-toggle-btn toggle-btn-container">
+          <div className="mask-toggle-btn toggle-btn-container" onClick={this.props.onMaskToggleButton}>
             <DottedOutlineIcon width="4.5rem" height="4.5rem" />
             <div>MASK</div>
           </div>
