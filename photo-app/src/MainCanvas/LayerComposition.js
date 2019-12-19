@@ -1,47 +1,8 @@
 import React from 'react'
 import ProcessingContainer from './ProcessingContainer'
-
-function refreshCanvasLayers(canvasLayers, incomingLayers) {
-  // INSERT 
-  const existingLayers = {}
-  canvasLayers.forEach((layer, i) => {
-    existingLayers[layer.sortLayerId] = i
-  })
-
-  const layersToAdd = []
-  const updatedLayers = []
-  incomingLayers.forEach((layer, i) => {
-    const key = layer.sortLayerId
-    // console.log('IN ' + layer.sortLayerId)
-    let found = existingLayers[key]
-    if (found === undefined) {
-      const newLayer = {sortLayerId: key, index: i}
-      // create new layer with p5 + paper.js
-      layersToAdd.push(newLayer)
-
-      updatedLayers.push(newLayer)
-    } else {
-      const existingLayer = canvasLayers[found]
-      updatedLayers.push(existingLayer)
-      delete existingLayers[key]
-    }
-  })
-
-  const layersToDelete = Object.entries(existingLayers).map(el => {
-    const [ sortLayerId, index ] = el
-    return { sortLayerId: sortLayerId, index: index }
-  })
-  
-  layersToAdd.forEach(layer => {
-    console.log(`ADD ${layer.index} ${layer.sortLayerId}`)
-  })
-
-  layersToDelete.forEach(layer => {
-    console.log(`DEL ${layer.index} ${layer.sortLayerId}`)
-  })
-
-  return updatedLayers
-}
+import figureOutLayerChanges from '../Helpers/figureOutLayerChanges'
+import { insertNewLayersIntoCollection } from '../Helpers/insertNewLayersIntoCollection'
+import destroyUnnecessaryLayersFromCollection from '../Helpers/destroyUnnecessaryLayersFromCollection'
 
 const paintTransparentCheckboardPattern = (bkgd, w, h) => {
   const squareSize = 35
@@ -64,10 +25,24 @@ const paintTransparentCheckboardPattern = (bkgd, w, h) => {
 export default class LayerComposition extends React.Component {
   constructor(props) {
     super()
-    this.canvasLayers = refreshCanvasLayers([], props.layers)
+    
     this.p5Scope = null
     this.finalCompositionLayer = null
     this.transparentCheckboardBackground = null
+
+    this.canvasLayers = this.refreshCanvasLayers([], props.layers, this.pScope, props.canvasWidth, props.canvasHeight)
+  }
+
+  refreshCanvasLayers = (layersBefore, layerAfters, pScope, width, height) => {
+    const [layersCollection, adds, deletes] = figureOutLayerChanges(layersBefore, layerAfters)
+    if (pScope !== null) {
+      insertNewLayersIntoCollection(adds, layersCollection, pScope, width, height)
+      // TODO: adjust canvas to size
+
+      destroyUnnecessaryLayersFromCollection(deletes, layersBefore)
+    }
+
+    return layersCollection
   }
 
   generateBackground = (p, w, h) => {
@@ -106,7 +81,8 @@ export default class LayerComposition extends React.Component {
     p.draw = () => {
       p.clear()
       // STEP 0: clear background color on canvas
-      p.background(180)
+      const backgroundColor = p.color(this.props.backgroundColor);
+      p.background(backgroundColor)
       // overlay
       // p.background(0);
   
@@ -173,42 +149,53 @@ export default class LayerComposition extends React.Component {
   }
 
   componentDidUpdate(previousProps) {
-    const resizeGraphics = (g, pScope, w, h) => {
-      const pixelDensity = pScope.pixelDensity()
-      const adjustedWidth = pixelDensity * w
-      const adjustedHeight = pixelDensity * h
-
+    const resizeGraphics = (g, w, h) => {
       g.width = w
       g.height = h
       g._renderer.resize(w, h)
-      //g.resizeCanvas(w, h)
-      // g.elt.width = adjustedWidth
-      // g.elt.style.width = w + "px"
-      // g.elt.height = adjustedHeight
-      // g.elt.style.height = h + "px"
+    }
+
+    const resizeTransparentPattern = (width, height) => {
+      const transparentBG = this.transparentCheckboardBackground
+      resizeGraphics(transparentBG, width, height)
+      paintTransparentCheckboardPattern(transparentBG, width, height)
+    }
+
+    const determineNewCanvasDimensions = (pScope, intendedCanvasWidth, intendedCanvasHeight) => {    
+      const currentCanvasWidth = pScope.width
+      const currentCanvasHeight = pScope.height
+
+      const resizingCanvasRequired = intendedCanvasWidth > 0 && intendedCanvasHeight > 0
+      const canvasDimensionsHaveChanged = currentCanvasWidth !== intendedCanvasWidth || currentCanvasHeight !== intendedCanvasHeight
+      const resizeCanvasNow = resizingCanvasRequired && canvasDimensionsHaveChanged
+
+      const updatedWidth = resizeCanvasNow ? intendedCanvasWidth : currentCanvasWidth
+      const updatedHeight = resizeCanvasNow ? intendedCanvasHeight : currentCanvasHeight
+
+      return [resizeCanvasNow, updatedWidth, updatedHeight]
+    }
+
+    const resizeAllExistingLayers = (layers, width, height) => {
+      layers.forEach(layer => {
+        resizeGraphics(layer.mask, width, height)
+        resizeGraphics(layer.source, width, height)
+      })
+    }
+
+    const resizeCanvasAndAllLayers = (width, height) => {
+      this.p5Scope.resizeCanvas(width, height)
+      resizeTransparentPattern(width, height)
+      resizeAllExistingLayers(this.canvasLayers, width, height)
     }
 
     if (this.p5Scope !== null) {
-      const updatedWidth = this.props.canvasWidth
-      const updatedHeight = this.props.canvasHeight
-
-      if (updatedWidth > 0 && updatedHeight > 0) {
-
-        if (previousProps.width !== updatedWidth || previousProps.height !== updatedHeight) {
-            this.p5Scope.resizeCanvas(updatedWidth, updatedHeight)
-
-            const transparentBG = this.transparentCheckboardBackground
-            resizeGraphics(transparentBG, this.p5Scope, updatedWidth, updatedHeight)
-
-            // transparentBG.size(updatedWidth, updatedHeight)
-            // transparentBG.width = updatedWidth
-            // transparentBG.height = updatedHeight
-
-            paintTransparentCheckboardPattern(transparentBG, updatedWidth, updatedHeight)
-        }
-      }
+      // USING SEPARATE STATE - OOPS
+      const [resizeCanvasNow, updatedWidth, updatedHeight] = determineNewCanvasDimensions(this.p5Scope, this.props.canvasWidth, this.props.canvasHeight)
       
-      this.canvasLayers = refreshCanvasLayers(this.canvasLayers, this.props.layers)
+      this.canvasLayers = this.refreshCanvasLayers(this.canvasLayers, this.props.layers, this.p5Scope, updatedWidth, updatedHeight) 
+      if (resizeCanvasNow) {
+        resizeCanvasAndAllLayers(updatedWidth, updatedHeight)
+      }
     }
   }
   

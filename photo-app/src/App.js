@@ -167,6 +167,7 @@ class App extends React.Component {
           layers={this.state.layers} 
           canvasWidth={this.state.canvasWidth}
           canvasHeight={this.state.canvasHeight}
+          backgroundColor={this.state.backgroundColor}
           />
       </div>
     )
