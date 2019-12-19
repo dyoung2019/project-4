@@ -31,6 +31,7 @@ export default class LayerComposition extends React.Component {
     this.transparentCheckboardBackground = null
 
     this.canvasLayers = this.refreshCanvasLayers([], props.layers, this.pScope, props.canvasWidth, props.canvasHeight)
+    this.blendModes = {}
   }
 
   refreshCanvasLayers = (layersBefore, layerAfters, pScope, width, height) => {
@@ -75,6 +76,24 @@ export default class LayerComposition extends React.Component {
       // this.layers = [this.generateBackground(p, w, h), p.createGraphics(w,h)]
       this.transparentCheckboardBackground = createTransparentCheckboardBackground(canvasWidth, canvasHeight)
       
+      this.blendModes = {
+        'BLEND': p.BLEND,
+        'DARKEST': p.DARKEST,
+        'LIGHTEST': p.LIGHTEST,
+        'DIFFERENCE': p.DIFFERENCE,
+        'MULTIPLY': p.MULTIPLY,
+        'EXCLUSION': p.EXCLUSION,
+        'SCREEN': p.SCREEN,
+        'REPLACE': p.REPLACE,
+        'OVERLAY': p.OVERLAY,
+        'HARD_LIGHT': p.HARD_LIGHT,
+        'SOFT_LIGHT': p.DODGE,
+        'BURN': p.BURN,
+        'ADD': p.ADD,
+        'DODGE': p.DODGE,
+        'REMOVE': p.REMOVE,
+        'SUBTRACT': p.SUBTRACT
+      }
     }
   
     // debugger
@@ -87,11 +106,51 @@ export default class LayerComposition extends React.Component {
       // p.background(0);
   
       // Set colors
-      p.fill(204, 101, 192, 127);
-      p.stroke(127, 63, 120);
+      // p.fill(204, 101, 192, 127);
+      // p.stroke(127, 63, 120);
 
-      // A rectangle
-      p.rect(40, 120, 120, 40);
+      // // A rectangle
+      // p.rect(40, 120, 120, 40);
+
+      p.image(this.transparentCheckboardBackground, 0, 0)
+
+      const maxGreyscaleColor = 255
+      const maxOpacity = 255
+      const noOfLayers = this.canvasLayers.length
+      for(let i = 0; i < noOfLayers; i += 1) {
+        const compositeLayer = this.canvasLayers[i]
+        const layerVariable = this.props.layers[i]
+
+        const sourceImage = compositeLayer.source
+        const vectorMask = compositeLayer.mask
+
+        // draw source image
+        sourceImage.clear()
+        sourceImage.background(123, 32, 75, 255);
+        // sourceImage.clear()
+        sourceImage.fill(255, 0, 0)
+        sourceImage.rect(40, 120, 120, 40)
+
+        sourceImage.fill(150, 126, 12)
+        sourceImage.rect(80, 40, 120, 40)
+
+        
+   
+        // subMask.background(opaqueColor)
+        
+        vectorMask.clear()
+        // const opaqueColor = vectorMask.color(maxGreyscaleColor, opacity)
+        vectorMask.background(maxGreyscaleColor, layerVariable.opacity)
+        // debugger;
+
+        const subMask  = vectorMask.get(0, 0, vectorMask.width, vectorMask.height)
+        const transformedSource = sourceImage.get(0, 0, sourceImage.width, sourceImage.height)
+        transformedSource.mask(subMask)
+        
+        let blendMode = this.blendModes[layerVariable.blendMode]
+        p.blendMode(blendMode)
+        p.image(transformedSource, 0 ,0)
+      }
 
       // let opacity = this.props.opacity
       // // STEP 1: layer 1 must be clear
@@ -124,17 +183,17 @@ export default class LayerComposition extends React.Component {
       const sx = 0
       const sy = 0
 
-      const sourceImage = this.transparentCheckboardBackground
-      const sWidth = sourceImage.width
-      const sHeight = sourceImage.height
+      // const sourceImage = this.transparentCheckboardBackground
+      // const sWidth = sourceImage.width
+      // const sHeight = sourceImage.height
 
-      const dWidth = this.props.canvasWidth
-      // console.log('dWidth' + dWidth)
-      const dHeight = this.props.canvasHeight
-      // p.image(sourceImage, dx, dy)
-      p.image(sourceImage, sx, sy)
-      // // STEP 8: reset blend mode
-      // // p.blendMode(p.BLEND)
+      // const dWidth = this.props.canvasWidth
+      // // console.log('dWidth' + dWidth)
+      // const dHeight = this.props.canvasHeight
+      // // p.image(sourceImage, dx, dy)
+      // p.image(sourceImage, sx, sy)
+      // // // STEP 8: reset blend mode
+      p.blendMode(p.BLEND)
 
       let fps = p.frameRate();
       p.fill(0, 255, 255, 255);
@@ -183,9 +242,9 @@ export default class LayerComposition extends React.Component {
     }
 
     const resizeCanvasAndAllLayers = (width, height) => {
-      this.p5Scope.resizeCanvas(width, height)
       resizeTransparentPattern(width, height)
       resizeAllExistingLayers(this.canvasLayers, width, height)
+      this.p5Scope.resizeCanvas(width, height)
     }
 
     if (this.p5Scope !== null) {
