@@ -1,0 +1,16 @@
+.source-info-panel .source-info-heading {
+  padding: 12px;
+  height: var(--cell-size);
+}
+
+.source-info-panel .source-info-heading + .properties-container {
+  margin-top: var(--gutter-size);
+}
+
+.source-info-panel .properties-container {
+  padding: 12px;
+}
+
+.source-info-panel .properties-container section + section {
+  margin-top: 12px;
+}

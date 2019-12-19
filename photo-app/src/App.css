@@ -1,8 +1,42 @@
+:root {
+  --color-1: #052E42;
+  --color-2: #B6C4CB;
+  --color-3: #E6F7FF;
+  --color-4: #A6E1FF;
+  --color-5: #737B80;
+  --cell-size: 108px;
+  --half-cell-size: 48px;
+  --gutter-size: 24px;
+  --half-gutter-size: 12px;
+}
+
+h1,
+h2,
+h3,
+label,
+div,
+input {
+  font-family: 'Cabin', sans-serif;
+  color: var(--color-1);
+}
+
+h1,
+h2,
+h3 {
+  text-transform: uppercase;
+}
+
+p {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1.0rem;
+  color: var(--color-1);
+}
+
 .App{
-  background-color: lightsalmon;
+  background-color: var(--color-5);
   display: grid;
-  grid-column-gap: 24px;
-  grid-row-gap: 24px;
+  grid-column-gap: var(--gutter-size);
+  grid-row-gap: var(--gutter-size);
   grid-template-columns: repeat(11, 108px);
   grid-template-rows: repeat(8, 108px);
   grid-template-areas: 
@@ -17,38 +51,38 @@
 }
 
 .App .main-toolbar {
-  background-color: grey;
+  background-color: var(--color-5);
   grid-area: mt;
 }
 
 .App .main-canvas {
-  background-color: lightsteelblue;
+  background-color: var(--color-2);
   grid-area: cv;
 }
 
 .App .sub-toolbar {
-  background-color: pink;
+  background-color: var(--color-2);
   grid-area: st;
 }
 
 .App .layers-panel {
-  background-color: white;
+  background-color: var(--color-3);
   grid-area: lp;
   overflow: hidden;
 }
 
 .App .compositions-panel {
-  background-color: orangered;
+  background-color: var(--color-3);
   grid-area: cp;
 }
 
 .App .source-info-panel {
-  background-color: lightblue;
+  background-color: var(--color-3);
   grid-area: si;
 }
 
 .App .key-bindings-panel {
-  background-color: lightgreen;
+  background-color: var(--color-3);
   grid-area: kb;
 }
 

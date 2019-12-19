@@ -40,7 +40,7 @@ export default class SimpleColorPicker extends React.Component
             <div className="swatch-color" style={swatchColorStyle} />
             {
               this.state.displayColorPicker 
-              ? <div className="swatch-close-button" onClick={ this.handleClick } >X</div> 
+              ? <div className="swatch-close-btn" onClick={ this.handleClick } >X</div> 
               : null
             }
           </div>

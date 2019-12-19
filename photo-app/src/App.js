@@ -6,6 +6,8 @@ import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
 import LayerComposition from './MainCanvas/LayerComposition';
 import MainCanvas from './MainCanvas/MainCanvas';
 import Toolbar from './Toolbar/Toolbar'
+import KeyBindingsPanel from './KeyBindingsPanel/KeyBindingsPanel'
+
 
 
 class App extends React.Component {
@@ -153,9 +155,7 @@ class App extends React.Component {
         <section className="compositions-panel">
           Compositions
         </section>
-        <section className="key-bindings-panel">
-          Key Bindings
-        </section>
+        <KeyBindingsPanel />
         <SourceInfoPanel 
           foregroundColor={this.state.foregroundColor}
           handleForegroundColor={this.handleForegroundColor}

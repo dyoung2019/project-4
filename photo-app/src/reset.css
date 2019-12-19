@@ -11,6 +11,11 @@ body {
 
 body,
 section,
+h1,
+h2,
+h3,
+p,
+a,
 div {
   margin: 0;
   padding: 0;

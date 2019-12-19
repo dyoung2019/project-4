@@ -1,0 +1,84 @@
+.sub-toolbar .sub-toolbar-container {
+  display: grid;
+  grid-column-gap: var(--gutter-size);
+  grid-row-gap: 12px;
+  grid-template-columns: repeat(8, 108px);
+  grid-template-rows: repeat(2, 48px);
+  grid-template-areas: 
+    "itb stb mtb lnl lni lni ol oi"
+    "itb stb mtb iot lot mot bml bms"
+}
+
+.sub-toolbar .toggle-btn-container {
+  background-color: var(--color-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.sub-toolbar .image-toggle-btn {
+  grid-area: itb;
+}
+
+.sub-toolbar .shape-toggle-btn {
+  grid-area: stb;
+}
+
+.sub-toolbar .mask-toggle-btn {
+  grid-area: mtb;
+}
+
+.sub-toolbar .toggle-btn-container:hover {
+  background-color: var(--color-3);
+  border-left: 0.25rem solid var(--color-1);
+  border-right: 0.25rem solid var(--color-1);
+}
+
+.sub-toolbar .toggle-btn-container:hover svg {
+  fill: var(--color-1);
+  transform: scale3d(0.9, 0.9, 1.0);
+}
+
+.sub-toolbar .isolate-on-toggle {
+  grid-area: iot;
+}
+
+.sub-toolbar .mask-on-toggle {
+  grid-area: mot;
+}
+
+.sub-toolbar .layer-on-toggle {
+  grid-area: lot;
+}
+
+.sub-toolbar .sub-toolbar-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sub-toolbar .layer-name-label {
+  grid-area: lnl;
+  padding: 0;
+}
+
+.sub-toolbar .layer-name-input {
+  grid-area: lni;
+}
+
+.sub-toolbar .opacity-label {
+  grid-area: ol;
+}
+
+.sub-toolbar .opacity-input {
+  grid-area: oi;
+}
+
+.sub-toolbar .blend-mode-label {
+  grid-area: bml;
+}
+
+.sub-toolbar .blend-mode-select {
+  grid-area: bms;
+}

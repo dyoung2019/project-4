@@ -1,0 +1,82 @@
+.main-toolbar.toolbar-container {
+  /* display: flex; */
+  display: grid;
+  grid-column-gap: var(--gutter-size);
+  grid-template-columns: repeat(11, 108px);
+  grid-template-areas: 
+    "menu select pen . . cwi chi . apptitle apptitle apptitle"
+}
+
+.main-toolbar .menu-icon {
+  grid-area: menu;
+}
+
+.main-toolbar div,
+.main-toolbar label {
+  color: var(--color-3);
+}
+
+.main-toolbar .selection-icon {
+  grid-area: select;
+}
+
+.main-toolbar .pen-icon {
+  grid-area: pen;
+}
+
+.main-toolbar .app-title {
+  grid-area: apptitle;
+}
+
+.main-toolbar .canvas-width-input {
+  grid-area: cwi;
+}
+
+.main-toolbar .canvas-height-input {
+  grid-area: chi;
+}
+
+.main-toolbar .toolbar-icon,
+.main-toolbar .toolbar-num-input {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  fill: var(--color-3);
+}
+
+.main-toolbar .toolbar-num-input input,
+.main-toolbar .toolbar-num-input label {
+  width: 100%;
+  height: 50%;
+}
+
+.main-toolbar .toolbar-icon svg {
+  padding-bottom: 0.5rem;
+}
+
+.main-toolbar .tool-icon:hover,
+.main-toolbar .toolbar-icon:hover {
+  background-color: var(--color-3);
+  border-right: 0.25rem solid var(--color-4);
+}
+
+.main-toolbar .tool-icon:hover {
+  border-left: 0.25rem solid var(--color-4);
+}
+
+.main-toolbar .toolbar-icon:hover div {
+  color: var(--color-1);
+}
+
+.main-toolbar .tool-icon:hover svg,
+.main-toolbar .menu-icon:hover svg{
+  fill: var(--color-1);
+}
+
+.main-toolbar .tool-icon:hover svg {
+  fill: var(--color-1);
+  border-bottom: 0.25rem solid var(--color-1);
+}

@@ -25,7 +25,7 @@
   /* background-color: rgba(${ this.state.color.r }, ${ this.state.color.g }, ${ this.state.color.b }, ${ this.state.color.a })`, */
 }
 
-.simple-color-picker .swatch-close-button {
+.simple-color-picker .swatch-close-btn {
   background-color: #fff;
   padding: 5px;
   cursor: pointer;
@@ -38,7 +38,7 @@
   color: grey;
 }
 
-.simple-color-picker .swatch-close-button:hover {
+.simple-color-picker .swatch-close-btn:hover {
   color: black;
 }
 

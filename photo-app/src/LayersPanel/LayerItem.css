@@ -4,6 +4,12 @@
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  padding: 12px;
+  border: 2px solid var(--color-1);
+}
+
+.layer-item + .layer-item {
+  margin-top: 12px;
 }
 
 .layer-item .layer-description {
@@ -11,8 +17,11 @@
   font-weight: 400;
 }
 
+.layer-item.layer-selected {
+  background-color: var(--color-4);
+}
+
 .layer-item.layer-selected .layer-description {
-  background-color: yellow;
   cursor: default;
 }
 
@@ -26,15 +35,15 @@
   font-weight: 700;
 }
 
-.layer-item .delete-layer--btn {
-  background-color: lightcoral;
+.layer-item .delete-layer-btn {
+  background-color: var(--color-2);
 }
 
 .layer-item .move-layer-up-btn {
-  background-color: lightpink;
+  background-color: var(--color-2);
 }
 
 .layer-item .move-layer-down-btn {
-  background-color: lightblue;
+  background-color: var(--color-2);
 }
 

@@ -1,0 +1,37 @@
+.layers-panel .layer-panel-header {
+  height: var(--cell-size);
+  display: flex;
+  justify-content: space-between;
+}
+
+.layers-panel .layer-panel-header .add-layer-btn {
+  height: var(--cell-size);
+  width: var(--cell-size);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.layers-panel .layer-panel-heading {
+  font-size: 2.0rem;
+  padding: 12px;
+}
+
+.layers-panel .add-layer-btn:hover svg {
+  fill: var(--color-5);
+  transform: scale3d(0.9, 0.9, 1.0);
+}
+
+.layers-panel .add-layer-btn:hover div {
+  color: var(--color-5);
+  border-bottom: 0.25rem solid var(--color-5);
+}
+
+.layers-panel .layer-panel-header + .layers-list {
+  margin-top: var(--gutter-size);
+}
+
+.layers-panel .layers-list {
+  padding: 0 24px 0 var(--gutter-size);
+}

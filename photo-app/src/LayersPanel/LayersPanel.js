@@ -1,5 +1,7 @@
 import React from 'react'
 import LayerItem from './LayerItem'
+import {ReactComponent as PlusFilled} from '../plus-filled.svg'
+import './LayersPanel.css'
 
 export default class LayersPanel extends React.Component {
   getFormattedLayers = (selectedIndex, layers) => {
@@ -42,8 +44,14 @@ export default class LayersPanel extends React.Component {
 
     return (
       <section className="layers-panel">
-        <h2>Layers</h2>
-        <button onClick={this.props.handleAddLayer}>Add Layer</button>
+        <header className="layer-panel-header">
+          <h1 className="layer-panel-heading">Layers</h1>
+          <div className="add-layer-btn"  onClick={this.props.handleAddLayer}>
+            <PlusFilled width="5.0rem" height="5.0rem" />
+            <div>ADD LAYER</div>
+          </div>
+        </header>
+        <div className="layers-list">
         {
           layers.map(displayLayer => {
             const {
@@ -76,7 +84,8 @@ export default class LayersPanel extends React.Component {
               removeLayer={removeLayer} />
             }
           )
-        }
+        }          
+        </div>
       </section>
     )
   }
