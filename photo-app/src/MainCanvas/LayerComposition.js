@@ -245,7 +245,11 @@ export default class LayerComposition extends React.Component {
       this.lastPathSegment  = segment
     }
 
-    const closeCurrentLayerPath = () => {
+    const getCurrentPathSegment = () => {
+      return this.lastPathSegment
+    } 
+
+    const closeCurrentLayerPath = (activePaperLayer) => {
       let incompletePath = this.incompletePathOnCurrentLayer
       if (!!incompletePath) {
         incompletePath.fillColor = 'white'
@@ -254,7 +258,7 @@ export default class LayerComposition extends React.Component {
         // FREE 
         this.incompletePathOnCurrentLayer = null
         setCurrentPathSegment(null)
-        this.currentActivePaperLayer.addChild(incompletePath)
+        activePaperLayer.addChild(incompletePath)
       }
     }
 
@@ -277,6 +281,7 @@ export default class LayerComposition extends React.Component {
 
     const setActivePaperScopeLayer = (scope) => {
       this.currentActivePaperLayer = scope.project.activeLayer
+      return this.currentActivePaperLayer
     }
 
     const mirrorPaperScope = new paper.PaperScope()
@@ -288,61 +293,114 @@ export default class LayerComposition extends React.Component {
     mirrorPaperScope.view.onMouseDown = (event) => {
       if (hasActivePaperLayerScope()) {
         let activePaperScope = getActivePaperLayerScope()
-        setActivePaperScopeLayer(activePaperScope)
-        
-        // console.log('onMouseDown')
+        let activeLayer = setActivePaperScopeLayer(activePaperScope)
 
-        // let openPath = getCurrentOpenPath()
-        // const hitResult = performHitTest(activePaperScope, event.point)
+        let openPath = getCurrentOpenPath()
+        const hitResult = performHitTest(activePaperScope, event.point)
 
-        // if (openPath && hitResult) {
-        //   const path = hitResult.item;
-        //   const selectedSegment = hitResult.segment
-        //   const frontEndOfPath = path.segments[0]
+        if (openPath && hitResult) {
+          const path = hitResult.item;
+          const selectedSegment = hitResult.segment
+          const frontEndOfPath = path.segments[0]
 
-        //   // UNLESS HIT TEST GETS FILL THEN STAGE FOR PATH FOR MOVING
-        //   if (hitResult.type === 'segment' && selectedSegment === frontEndOfPath) {
-        //     // AUTO CLOSE SEGMENT
-        //     closeCurrentLayerPath()
-        //     return false
-        //   }
-        // }
-        // else if (!openPath) {
-        //   // CREATE NEW PATH 
-        //   openPath = createNewOpenedPath(activePaperScope)
-        // }
+          // UNLESS HIT TEST GETS FILL THEN STAGE FOR PATH FOR MOVING
+          if (hitResult.type === 'segment' && selectedSegment === frontEndOfPath) {
+            // AUTO CLOSE SEGMENT
+            closeCurrentLayerPath(activeLayer)
+            return false
+          }
+        }
+        else if (!openPath) {
+          // CREATE NEW PATH 
+          openPath = createNewOpenedPath(activePaperScope)
+        }
 
-        let path = new activePaperScope.Path.Circle(event.point, 15)
-        path.strokeColor = 'black';
-        path.fillColor = this.props.foregroundColor
-        path.closed = true;
+        // let path = new activePaperScope.Path.Circle(event.point, 15)
+        // path.strokeColor = 'black';
+        // path.fillColor = this.props.foregroundColor
+        // path.closed = true;
 
-        this.currentActivePaperLayer.addChild(path)
+        // this.currentActivePaperLayer.addChild(path)
 
         // PUT DOWN NEXT POINT ON PATH
-        // const segment = insertEditablePointAtEndOfPath(openPath, event.point)
-        // setCurrentPathSegment(segment)
+        const segment = insertEditablePointAtEndOfPath(openPath, event.point)
+        setCurrentPathSegment(segment)
 
         // console.log('segment add')
-        return false
+        // return false
+      }
+    }
+
+    const handleMouseDragForPenTool = (keyHeldDown, point) => {
+      const calculateDelta = (pointA, pointB) => {
+        const dx = pointA.x - pointB.x
+        const dy = pointA.y - pointB.y
+  
+        return [dx, dy]
+      } 
+  
+      const extendPathHandles = (activePaperScope, segment, point) => {
+        let [dx, dy] = calculateDelta(segment.point, point)
+  
+        segment.handleIn = new activePaperScope.Point(dx, dy)
+        segment.handleOut = new activePaperScope.Point(-dx, -dy)
+      }
+      
+      const extendPathHandleIndependently = (activePaperScope, segment, point) => {
+        let [dx, dy] = calculateDelta(segment.point, point)
+  
+        segment.handleOut = new activePaperScope.Point(-dx, -dy)
+      }
+
+      let activePaperScope = getActivePaperLayerScope()
+      setActivePaperScopeLayer(activePaperScope)
+
+      const segment = getCurrentPathSegment() 
+      if (!!segment) {
+        if (keyHeldDown) {
+          extendPathHandleIndependently(activePaperScope, segment, point)
+        } else {
+          extendPathHandles(activePaperScope, segment, point)
+        }
       }
     }
 
     mirrorPaperScope.view.onMouseDrag = (event) => {
       if (hasActivePaperLayerScope()) {
-        // console.log('onMouseDrag')
+        handleMouseDragForPenTool(event.modifiers.option, event.point)
       }
+    }
+
+    const handleMouseUpForPenTool = () => {
+      let activePaperScope = getActivePaperLayerScope()
+      setActivePaperScopeLayer(activePaperScope)
+
+      setCurrentPathSegment(null)
     }
 
     mirrorPaperScope.view.onMouseUp = (event) => {
       if (hasActivePaperLayerScope()) {
-        // console.log('onMouseUp')
+        handleMouseUpForPenTool();
       }
     }
 
     mirrorPaperScope.view.onKeyUp = (event) => {
       if (hasActivePaperLayerScope()) {
-        // console.log('onKeyUp')
+
+        let activePaperScope = getActivePaperLayerScope()
+        let activeLayer = setActivePaperScopeLayer(activePaperScope)
+
+        if (event.key === 'enter') {
+          // Scale the path by 110%:
+          // scrsibble.strokeColor = 'green' 
+          // Prevent the key event from bubbling
+          console.log('enter up')
+  
+          let incompletePath = getCurrentOpenPath()
+          if (incompletePath) {
+            closeCurrentLayerPath(activeLayer)
+          }
+        }
       }
     }
 
