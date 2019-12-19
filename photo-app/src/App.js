@@ -7,7 +7,7 @@ import LayerComposition from './MainCanvas/LayerComposition';
 import MainCanvas from './MainCanvas/MainCanvas';
 import Toolbar from './Toolbar/Toolbar'
 import KeyBindingsPanel from './KeyBindingsPanel/KeyBindingsPanel'
-
+import CompositionsPanel from './CompositionsPanel/CompositionsPanel'
 
 
 class App extends React.Component {
@@ -152,9 +152,7 @@ class App extends React.Component {
           onLayerBlendModeChange={this.handleLayerBlendModeChange}
           onLayerNameChange={this.handleLayerNameChange}
           />     
-        <section className="compositions-panel">
-          Compositions
-        </section>
+        <CompositionsPanel />
         <KeyBindingsPanel />
         <SourceInfoPanel 
           foregroundColor={this.state.foregroundColor}
