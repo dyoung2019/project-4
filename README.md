@@ -6,7 +6,7 @@ http://photo-app-2019.surge.sh/
 
 A frontend-only/in-browser non-destructive image composition editor (i.e. Photoshop / Illustrator clone) with vector drawing catered to exporting multiple assets such as favicons designed for desktop.
 
-This was built from the final project of my General Assembly bootcamp class (SEI-Melb-22 Blackjack ) from the week of 
+This was built from the final project of my General Assembly bootcamp class (SEI-Melb-22 Blackjack) during the final week.
 
 ## Functionality
 
@@ -19,13 +19,16 @@ This was built from the final project of my General Assembly bootcamp class (SEI
 
 ## Technologies
 
-- [React.js]()
-  - Great for split an single web application in smaller components
-- [create-react-app]()
-  - really easy to get an simple React website up and running.
-- p5.js (Processing)
+- [React.js](https://reactjs.org/)
+  - Great for split an single web application in smaller components.
+- [create-react-app](https://github.com/facebook/create-react-app)
+  - really easy to get an simple React website up and running. 
+- [p5.js](https://p5js.org/)
+  - js drawing/image processing library for html canvas
 - [paper.js](http://paperjs.org/)
-- [react-color](a s)
+  - js drawing library for drawing paths and shapes 
+- [react-color](https://casesandberg.github.io/react-color/)
+  - React.js color picker components
 
 ## Design process
 
@@ -39,11 +42,11 @@ Yet, I had more other user stories for my project and put them into my [Trello b
 
 ### Wireframes
 
-Next, I proceeded to make a number of [Wireframes in Figma](https://www.figma.com/file/YD6P76TkxuNwRU2EpGZxyb/Wireframes?node-id=6%3A38).
+Next, I proceeded to make a number of [Wireframes in Figma](https://www.figma.com/file/YD6P76TkxuNwRU2EpGZxyb/Wireframes?node-id=6%3A38), looking at Figma, PhotoShop, Canva, Illustrator and After Effects for inspirations.
 
 ## Lessons learned 
 
-Choosing an undertaking as 'writing your own photoshop clone' is  definitely an overwhelming task to complete in a week. I did find it challenging to incorporate two js canvas library.
+Choosing an undertaking as 'writing your own photoshop clone' is  definitely an overwhelming task to complete in a week. I did find it challenging to incorporate two js canvas libraries.
 
 However, I am still proud of my project.
 
