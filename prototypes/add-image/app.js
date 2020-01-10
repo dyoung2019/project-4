@@ -1,8 +1,8 @@
 const divContainer = document.querySelector(".container")
 const saveImageBtn = document.querySelector('.save-file-dialog button')
 
-const compWidth = 900
-const compHeight = 900
+const compWidth = 500
+const compHeight = 500
 
 const generateCompositionFile = (name, width, height) => {
   // lottie file format
@@ -71,30 +71,58 @@ let c;
 const sketch = (p) => {
   let img; // Declare variable 'img'.
 
-  p.setup = () => {
+  const createPPICanvas = (p, pixelDensity) => {
     // 1 x 1 for custom resolution
-    p.pixelDensity(1)
-    // TODO : something else for print dpi
-    c = p.createCanvas(compWidth, compHeight);
+    // p.pixelDensity(1)
+    // // fractional pixel density work too
+    // p.pixelDensity(0.5)
+    // // very large pixel density should use createGraphics instead
+    // p.pixelDensity(7)
+
+
+    p.pixelDensity(pixelDensity)
+    // use offscreen graphics
+    return p.createGraphics(compWidth, compHeight)
+  }
+
+  p.setup = () => {
+    p.createCanvas(compWidth, compHeight)
+    // 1 x 1 for custom resolution
+    // fractional pixel density work too
+    // very large pixel density should use createGraphics instead
+    const density = 4.0
+    c = createPPICanvas(p, density)
     const imageName = 'image.png'
     const imagePath = 'assets/image.png'
 
     const onImageLoad = img => {
       let imgInfo = generateImageSource(1, imageName, imagePath, img.width, img.height)
       currentComp.assets.push(imgInfo)
+      // c.copy(img, 0, 0, img.width, img.height, 0, c.height / 2, c.width, c.height)
     }
 
     img = p.loadImage(imagePath, onImageLoad, onImageLoadError)
   }
   
   p.draw = () => {
-
-    let bkgdColor = p.color('coral')
-    p.background(bkgdColor)
+    p.background('coral')
+    // let bkgdColor = p.color('olive')
+    // c.background(bkgdColor)
     // Displays the image at its actual size at point (0,0)
-   // p.image(img, 0, 0);
     // Displays the image at point (0, height/2) at half size
-    p.image(img, 0, p.height / 2, p.width, p.height);
+    p.fill(0, 100, 0)
+    //p.tint(0, 153, 204) // Tint blue
+    // p.image(img, 0, 0)
+    p.ellipse(150,150,100,100)
+    
+    p.image(img, 0, c.height / 2, c.width, c.height)
+    
+    let bkgdColor = p.color('olive')
+    c.background(bkgdColor)
+    c.tint(255, 0, 255, 255);
+    c.ellipse(150,150,100,100)
+    c.image(img, 0, c.height / 2, compWidth, compHeight)
+    // c.image(img, 0, c.height / 2, c.width, c.height);
   }
 }
 
