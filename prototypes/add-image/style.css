@@ -18,3 +18,8 @@ div {
 .container {
   background-color: lightgreen;
 }
+
+
+.file-input {
+  display: none;
+}

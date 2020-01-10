@@ -9,7 +9,12 @@
 </head>
 <body>
   <div class="container"></div>
-  <button class="save-image-btn">Save</button>
+  <div class="save-file-dialog">
+    <button class="save-image-btn">Save</button>
+    <input class="file-input" type="file" name="name" />
+    <a href="#" download="data.csv">Export data into Excel</a>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/p5" crossorigin="anonymous"></script>
   <script src="app.js"></script>
 </body>

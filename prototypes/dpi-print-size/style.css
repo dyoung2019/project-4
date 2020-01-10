@@ -1,0 +1,38 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.container .container-row,
+.container .result-panel {
+  width: 100%;
+}
+
+.container > input,
+.container > button,
+.container > label {
+  width: 100px;
+}
+
+.doc-result-panel,
+.result-panel {
+  padding: 1.0rem;
+}
+
+.is-valid {
+  background-color: lightgreen;
+}
+
+.in-error {
+  background-color: red;
+}

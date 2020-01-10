@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="container-row">
+      <label for="input-width">Input Width</label>
+      <input type="number" name="input-width" id="input-width"
+       class="input-width" min="1">
+    </div>
+    <div class="container-row">
+      <label for="input-height">Input Height</label>
+      <input type="number" name="input-height" id="input-height" 
+        class="input-height" min="1">
+    </div>
+
+    <div class="container-row">
+      <label for="output-width">Output Width:</label>
+      <input type="number" name="output-width" id="output-width" class="output-width">
+    </div>
+    <!-- <div class="container-row">
+      <label for="keep-aspect-ratio">Keep aspect ratio</label>
+      <input type="checkbox" name="keep-aspect-ratio" id="keep-aspect-ratio">
+    </div> -->
+    <div class="container-row">
+      <label for="output-height">Output Height:</label>
+      <input type="number" name="output-height" id="output-height" class="output-height">
+    </div>
+    <button class="calculate-btn" >Calculate</button>
+    <div class="result-panel">
+      Pixel Density: <span class="pixel-density"></span>
+    </div>
+
+    <div class="container-row">
+      <label for="document-type">Document type:</label>
+      <select name="document-type" id="document-type" class="document-type">
+        <option value="A4">A4 (8.27 x 11.69 inches)</option>
+        <option value="Letter">Letter (8.27 x 11 inches)</option>
+      </select>
+    </div>
+
+    <div class="container-row">
+      <label for="ppi">Points per inch:</label>
+      <select name="ppi" id="ppi" class="ppi">
+        <option value="72">72 ppi</option>
+        <option value="96">96 ppi</option>
+        <option value="150">150 ppi</option>
+        <option value="300">300 ppi</option>
+      </select>
+    </div>
+    
+    <div class="container-row">
+      <label for="reference-width">Reference Width:</label>
+      <input type="number" name="reference-width" id="reference-width"
+        class="reference-width" min="0" value="1">
+    </div>
+    <div class="container-row">
+      <label for="reference-height">Reference Height:</label>
+      <input type="number" name="reference-height" id="reference-height"
+        class="reference-height" min="0" value="1">
+    </div>
+    <button class="fix-aspect-ratio-btn">Fix Aspect Ratio</button>
+    <button class="calculate-doc-btn" >Calculate Doc</button>
+    <div class="doc-result-panel">
+      <div>
+        Pixel Density: <span class="document-pixel-density"></span>
+      </div>
+      <div>
+        Image Aspect Ratio: <span class="img-aspect-ratio"></span>
+      </div> 
+      <div>
+        Doc Aspect Ratio: <span class="doc-aspect-ratio"></span>
+      </div>
+      <div>
+        Document Width: <span class="document-width"></span>
+      </div>
+      <div>
+        Document Height: <span class="document-height"></span>
+      </div>
+      <div>
+        Image Width: <span class="image-width"></span>
+      </div>
+      <div>
+        Image Height: <span class="image-height"></span>
+      </div>
+    </div>
+
+  </div>
+
+
+  <script src="app.js"></script>
+</body>
+</html>
