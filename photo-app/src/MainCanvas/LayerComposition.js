@@ -1,27 +1,9 @@
 import React from 'react'
 import ProcessingContainer from './ProcessingContainer'
-import figureOutLayerChanges from '../Helpers/figureOutLayerChanges'
-import { insertNewLayersIntoCollection } from '../Helpers/insertNewLayersIntoCollection'
-import destroyUnnecessaryLayersFromCollection from '../Helpers/destroyUnnecessaryLayersFromCollection'
 import paper from 'paper'
-
-const paintTransparentCheckboardPattern = (bkgd, w, h) => {
-  const squareSize = 35
-  const noOfColumns = Math.ceil(w / squareSize)
-  const noOfRows = Math.ceil(h / squareSize)
-
-  bkgd.noStroke()
-  for (let i = 0; i < noOfColumns; i++) {
-    for (let j = 0; j < noOfRows; j++) {
-      if ((i + j) % 2 === 0) {
-        bkgd.fill(0, 0); // transparent
-      } else {
-        bkgd.fill(160, 255); // white
-      }
-      bkgd.rect(i * squareSize, j * squareSize, squareSize, squareSize);
-    }
-  }
-}
+import paintTransparentCheckboardPattern from './p5/paintTransparentCheckboardPattern'
+import generateBackground from './p5/generateBackground'
+import refreshCanvasLayers from './refreshCanvasLayers'
 
 export default class LayerComposition extends React.Component {
   constructor(props) {
@@ -31,7 +13,7 @@ export default class LayerComposition extends React.Component {
     this.finalCompositionLayer = null
     this.transparentCheckboardBackground = null
 
-    this.canvasLayers = this.refreshCanvasLayers([], props.layers, this.pScope, props.canvasWidth, props.canvasHeight)
+    this.canvasLayers = refreshCanvasLayers([], props.layers, this.pScope, props.canvasWidth, props.canvasHeight)
     this.blendModes = {}
 
     // PEN 
@@ -39,31 +21,6 @@ export default class LayerComposition extends React.Component {
     this.incompletePathOnCurrentLayer = null
     this.lastPathSegment = null
     this.currentActivePaperLayer = null 
-  }
-
-  refreshCanvasLayers = (layersBefore, layerAfters, pScope, width, height) => {
-    const [layersCollection, adds, deletes] = figureOutLayerChanges(layersBefore, layerAfters)
-    if (pScope !== null) {
-      insertNewLayersIntoCollection(adds, layersCollection, pScope, width, height)
-      // TODO: adjust canvas to size
-
-      destroyUnnecessaryLayersFromCollection(deletes, layersBefore)
-    }
-
-    return layersCollection
-  }
-
-  generateBackground = (p, w, h) => {
-    let bkgd  = p.createGraphics(w,h);
-    // draw some stuff.
-    bkgd.background(255,0,0);
-    bkgd.stroke(255, 204, 0);
-    
-    for(var i = 0; i < p.width + 10; i += 10) {
-      bkgd.strokeWeight(i/40)
-      bkgd.line(i,0,i,400);
-    }
-    return bkgd
   }
 
   handleSketch = (p) => {
@@ -447,19 +404,19 @@ export default class LayerComposition extends React.Component {
       })
     }
 
-    const resizeCanvasAndAllLayers = (width, height) => {
+    const resizeCanvasAndAllLayers = (p5, layers, width, height) => {
       resizeTransparentPattern(width, height)
-      resizeAllExistingLayers(this.canvasLayers, width, height)
-      this.p5Scope.resizeCanvas(width, height)
+      resizeAllExistingLayers(layers, width, height)
+      p5.resizeCanvas(width, height)
     }
 
     if (this.p5Scope !== null) {
       // USING SEPARATE STATE - OOPS
       const [resizeCanvasNow, updatedWidth, updatedHeight] = determineNewCanvasDimensions(this.p5Scope, this.props.canvasWidth, this.props.canvasHeight)
       
-      this.canvasLayers = this.refreshCanvasLayers(this.canvasLayers, this.props.layers, this.p5Scope, updatedWidth, updatedHeight) 
+      this.canvasLayers = refreshCanvasLayers(this.canvasLayers, this.props.layers, this.p5Scope, updatedWidth, updatedHeight) 
       if (resizeCanvasNow) {
-        resizeCanvasAndAllLayers(updatedWidth, updatedHeight)
+        resizeCanvasAndAllLayers(this.p5Scope, this.canvasLayers, updatedWidth, updatedHeight)
       }
     }
   }

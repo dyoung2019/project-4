@@ -1,5 +1,7 @@
-import React from 'react';
+import React from 'react'
 import './MainComposer.css'
+import ProcessingContainer from './ProcessingContainer'
+import drawRedRectSketch from './p5/drawRedRectSketch'
 
 const convertToElementCoords = (rect, clientX, clientY) => {
   const ix = clientX - rect.left //x position within the element.
@@ -25,11 +27,13 @@ export default class MainComposer extends React.Component {
       lastMousePosition: {x : 0, y : 0}
     }
     this.mainComp = React.createRef();
+    this.divContainer = null
+    this.p5Scope = null
   } 
 
-  componentDidMount() {
-    this.mainComp = React.createRef();
-  }
+  // componentDidMount() {
+  //   this.mainComp = React.createRef();
+  // }
 
   hideOverlay = () => {
     const setIsOverlayOn = (isVisible) => {
@@ -77,14 +81,14 @@ export default class MainComposer extends React.Component {
     // console.log('inside-scale', sx, sy)
   }
 
-  handlePicking = (e) => {
-    // console.log('main', e.x, e.y)
+  // handlePicking = (e) => {
+  //   // console.log('main', e.x, e.y)
   
-    // const [sx, sy] = this.pickCanvasCoords(e)
+  //   // const [sx, sy] = this.pickCanvasCoords(e)
   
-    // console.log('inside', ix, iy)
-    // console.log('inside-scale', sx, sy)
-  }
+  //   // console.log('inside', ix, iy)
+  //   // console.log('inside-scale', sx, sy)
+  // }
 
   setScrollPosition = (deltaX, deltaY) => {
     // application state 
@@ -164,6 +168,12 @@ export default class MainComposer extends React.Component {
     return classNames.join(' ')
   }
 
+  saveContext = (divContainer) => {
+    // div
+    this.divContainer = divContainer
+    this.p5Scope = new window.p5(drawRedRectSketch, this.divContainer)
+  }
+
   render() {
     const topLeftCorner = this.state.topLeftCorner
 
@@ -187,13 +197,14 @@ export default class MainComposer extends React.Component {
         </header>
         <div className="container" style={containerStyle}>
           <div className="basement">
-            <main 
+            {/* <main 
               className="main-comp" 
               ref={this.mainComp} 
-              onClick={this.handlePicking}
+              // onClick={this.handlePicking}
               >
               
-            </main>
+            </main> */}
+            <ProcessingContainer contextRef={this.saveContext}/>
           </div>
           <canvas 
             className={overlayClass} 
