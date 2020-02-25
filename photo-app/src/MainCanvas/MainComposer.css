@@ -1,0 +1,86 @@
+.main-composer {
+  width: 100%;
+  height: 100%;
+}
+
+.page-header {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 10%;
+}
+
+.hide-overlay-btn {
+  background-color: lightcoral;
+  padding: 5px;
+}
+
+.zoom-btn {
+  background-color: lightskyblue;
+  padding: 5px;
+}
+
+.container {
+  width: 100%;
+  height: 90%;
+  --canvas-width: 200px;
+  --canvas-height: 300px;
+  --zoom-level: 1;
+  --pan-x: 0px;
+  --pan-y: 0px;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.basement {
+  /* width: contain; */
+  /* width: 100%; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 0;
+  position: absolute;
+  transform-origin: center;
+  transform: translate3d(var(--pan-x, 0px), var(--pan-y, 0px), 0) scale3d(var(--zoom-level, 1), var(--zoom-level, 1), 1);
+}
+
+.overlay { 
+  /* display: none; */
+  width: 100%;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: rgba(211, 0, 0, 0.2);
+}
+
+.overlay {
+  cursor: grab;
+}
+
+.overlay.hide-layer {
+  display: none;
+}
+
+.overlay.is-panning {
+  cursor: grabbing;
+}
+
+.header, 
+.footer {
+  height: calc(var(--canvas-height) * 0.5);
+  width: calc(var(--canvas-width) * 2);
+
+  background-color: lightgoldenrodyellow;
+}
+
+.main-comp {
+  width: var(--canvas-width);
+  height: var(--canvas-height);
+  /* transform-origin: top left; */
+  background-color: pink;
+}

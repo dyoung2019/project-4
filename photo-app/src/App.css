@@ -32,7 +32,7 @@ p {
   color: var(--color-1);
 }
 
-.App{
+.App {
   background-color: var(--color-5);
   display: grid;
   grid-column-gap: var(--gutter-size);
@@ -55,7 +55,9 @@ p {
   grid-area: mt;
 }
 
-.App .main-canvas {
+.App .main-canvas,
+.App .main-composer
+{
   background-color: var(--color-2);
   grid-area: cv;
 }
