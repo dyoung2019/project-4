@@ -2,8 +2,11 @@ import React from 'react'
 import ProcessingContainer from './ProcessingContainer'
 import paper from 'paper'
 import paintTransparentCheckboardPattern from './p5/paintTransparentCheckboardPattern'
-import generateBackground from './p5/generateBackground'
 import refreshCanvasLayers from './refreshCanvasLayers'
+
+import performHitTest from './paper/performHitTest'
+import insertEditablePointAtEndOfPath from './paper/insertEditablePointAtEndOfPath'
+import handleMouseDragForPenTool from './paper/handleMouseDragForPenTool'
 
 export default class LayerComposition extends React.Component {
   constructor(props) {
@@ -180,23 +183,15 @@ export default class LayerComposition extends React.Component {
       return this.incompletePathOnCurrentLayer
     }
 
+    const setCurrentOpenPath = (path) => {
+      this.incompletePathOnCurrentLayer = path
+    } 
+
     const getActivePaperLayerScope = () => {
       const selectedIndex = this.props.currentLayerIndex
       const selectedLayer = this.canvasLayers[selectedIndex]
       return selectedLayer.paperScope
-    }
-
-    const performHitTest = (activePaperScope, point) => {
-      // CUSTOM LATER
-      const hitOptions = {
-        segments: true,
-        stroke: true,
-        fill: true,
-        tolerance: 5
-      }
-  
-      return activePaperScope.project.hitTest(point, hitOptions)
-    }    
+    }  
 
     const setCurrentPathSegment = segment => {
       this.lastPathSegment  = segment
@@ -219,23 +214,13 @@ export default class LayerComposition extends React.Component {
       }
     }
 
-    const createNewOpenedPath = (activePaperScope) => {
-      const newPath = new activePaperScope.Path()
+    const createNewOpenedPath  = (scope) => {
+      const newPath = new scope.Path()
       newPath.fullySelected = true
       this.incompletePathOnCurrentLayer = newPath
       // this.currentActivePaperLayer.addChild(newPath)
       return newPath
-    } 
-    
-    const insertEditablePointAtEndOfPath = (path, point) => {
-      let endPoint = this.lastPathSegment 
-      if (endPoint === null) {
-        endPoint = path.add(point)
-        endPoint.selected = true;
-      }
-      return endPoint
     }
-
     const setActivePaperScopeLayer = (scope) => {
       this.currentActivePaperLayer = scope.project.activeLayer
       return this.currentActivePaperLayer
@@ -270,6 +255,7 @@ export default class LayerComposition extends React.Component {
         else if (!openPath) {
           // CREATE NEW PATH 
           openPath = createNewOpenedPath(activePaperScope)
+          setCurrentOpenPath(openPath)
         }
 
         // let path = new activePaperScope.Path.Circle(event.point, 15)
@@ -280,7 +266,7 @@ export default class LayerComposition extends React.Component {
         // this.currentActivePaperLayer.addChild(path)
 
         // PUT DOWN NEXT POINT ON PATH
-        const segment = insertEditablePointAtEndOfPath(openPath, event.point)
+        const segment = insertEditablePointAtEndOfPath(this.lastPathSegment, openPath, event.point)
         setCurrentPathSegment(segment)
 
         // console.log('segment add')
@@ -288,43 +274,13 @@ export default class LayerComposition extends React.Component {
       }
     }
 
-    const handleMouseDragForPenTool = (keyHeldDown, point) => {
-      const calculateDelta = (pointA, pointB) => {
-        const dx = pointA.x - pointB.x
-        const dy = pointA.y - pointB.y
-  
-        return [dx, dy]
-      } 
-  
-      const extendPathHandles = (activePaperScope, segment, point) => {
-        let [dx, dy] = calculateDelta(segment.point, point)
-  
-        segment.handleIn = new activePaperScope.Point(dx, dy)
-        segment.handleOut = new activePaperScope.Point(-dx, -dy)
-      }
-      
-      const extendPathHandleIndependently = (activePaperScope, segment, point) => {
-        let [dx, dy] = calculateDelta(segment.point, point)
-  
-        segment.handleOut = new activePaperScope.Point(-dx, -dy)
-      }
-
-      let activePaperScope = getActivePaperLayerScope()
-      setActivePaperScopeLayer(activePaperScope)
-
-      const segment = getCurrentPathSegment() 
-      if (!!segment) {
-        if (keyHeldDown) {
-          extendPathHandleIndependently(activePaperScope, segment, point)
-        } else {
-          extendPathHandles(activePaperScope, segment, point)
-        }
-      }
-    }
-
     mirrorPaperScope.view.onMouseDrag = (event) => {
       if (hasActivePaperLayerScope()) {
-        handleMouseDragForPenTool(event.modifiers.option, event.point)
+        let activePaperScope = getActivePaperLayerScope()
+        setActivePaperScopeLayer(activePaperScope)
+
+        const segment = getCurrentPathSegment() 
+        handleMouseDragForPenTool(activePaperScope, segment, event.modifiers.option, event.point)
       }
     }
 

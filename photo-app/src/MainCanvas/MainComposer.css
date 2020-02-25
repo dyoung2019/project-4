@@ -48,14 +48,14 @@
   transform: translate3d(var(--pan-x, 0px), var(--pan-y, 0px), 0) scale3d(var(--zoom-level, 1), var(--zoom-level, 1), 1);
 }
 
-.overlay { 
+.overlay,
+.overlay > canvas { 
   /* display: none; */
   width: 100%;
   height: 100%;
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: rgba(211, 0, 0, 0.2);
 }
 
 .overlay {

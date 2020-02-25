@@ -2,8 +2,8 @@ import React from 'react';
 import './App.css';
 import LayersPanel from './LayersPanel/LayersPanel'
 import SubmenuBar from './SubmenuBar/SubmenuBar'
-import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel';
-// import LayerComposition from './MainCanvas/LayerComposition';
+import SourceInfoPanel from './SourceInfoPanel/SourceInfoPanel'
+import LayerComposition from './MainCanvas/LayerComposition'
 // import MainCanvas from './MainCanvas/MainCanvas';
 import Toolbar from './Toolbar/Toolbar'
 import KeyBindingsPanel from './KeyBindingsPanel/KeyBindingsPanel'
