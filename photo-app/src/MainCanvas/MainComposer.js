@@ -137,202 +137,148 @@ export default class MainComposer extends React.Component {
 
       this.overlayEngine = this.initOverlayEngine()
       
-      const drawRing = (scope) => {
-        const drawsCircle = (c, center, size) => {
-          if (c !== null) {
-              c.remove();
-          }    
-        
-          // var viewH = Math.min(size.width, size.height) / 3
-  
-          var path = new scope.Path.Circle(new scope.Point(80, 50), 30)
-          path.strokeColor = 'white'
-          path.strokeWidth = 10
-        
-          // DUPLICATE LAST POINT TO CREATE OPEN PATH THAT LOOK LIKE A CLOSED PATH
-          if (path.closed) {
-              var first = path.firstSegment
-              var last = path.lastSegment
-              var finalSegment = path.add(first.point)
-              // console.log(last.handleIn)
-              // console.log(first.handleOut)
-              finalSegment.handleOut = last.handleIn
-              finalSegment.handleIn = first.handleIn
-            path.closed = false
-          }
-        
-          var length = path.length
-          //console.log(length)
-          
-          var halfWay = path.getLocationAt(length * 0.85)
-          //console.log(halfWay)
-          var splitCurve = path.splitAt(halfWay)
-          splitCurve.strokeColor = 'green'
-          
-          // var pathLength = path.
-          // shortPath.strokeColor = new Color(1, 0, 0);
-          // shortPath.strokeWidth = 3
-          // path.remove();
-          return path;
-        }
-        
-        var c1 = drawsCircle(null, scope.view.center, scope.view.size)
-      }
-
-      const hasActivePaperLayerScope = () => {
+      const isScopeActivated = () => {
         return true
       }
 
-      const getActivePaperLayerScope = () => {
+      const getActiveScope = () => {
         return this.overlayEngine
       }
 
-      let currentActivePaperLayer = null
-      const setActivePaperScopeLayer = (scope) => {
-        currentActivePaperLayer = scope.project.activeLayer
-        return currentActivePaperLayer
+      const getLayerOfActiveScope = scope => {
+        return scope.project.activeLayer
       }
 
       let lastPathSegment = null
-      const setCurrentPathSegment = segment => {
+      const trackPathSegment = segment => {
         lastPathSegment = segment
+      }
+
+      const untrackPathSegment = () => {
+        lastPathSegment = null
       }
       
       const getCurrentPathSegment = () => {
         return lastPathSegment
       }         
       
-      let incompletePathOnCurrentLayer = null
-      const getCurrentOpenPath = () => {
-        return incompletePathOnCurrentLayer
+      let incompletePath = null
+      const getCurrentIncompletePath = () => {
+        return incompletePath
       }
-      const setCurrentOpenPath = (path) => {
-        incompletePathOnCurrentLayer = path
+      const setCurrentIncompletePath = path => {
+        incompletePath = path
       }
 
-      const createNewOpenedPath = (scope) => {
+      const createNewOpenedPath = scope => {
         const newPath = new scope.Path()
         newPath.fullySelected = true
-        incompletePathOnCurrentLayer = newPath
-        // this.currentActivePaperLayer.addChild(newPath)
         return newPath
       }      
 
       const writeOutPath = (activePaperLayer, path) => {
-        this.incompletePathOnCurrentLayer = null
-        setCurrentPathSegment(null)
+        incompletePath = null
+        untrackPathSegment()
         activePaperLayer.addChild(path)
       }
 
-      const closeCurrentLayerPath = (activePaperLayer) => {
-        let incompletePath = incompletePathOnCurrentLayer
-        if (!!incompletePath) {
-          incompletePath.fillColor = 'white'
-          incompletePath.fullySelected = false
-          incompletePath.closed = true
-          // FREE 
-          incompletePathOnCurrentLayer = null
-          setCurrentPathSegment(null)
-          activePaperLayer.addChild(incompletePath)
+      const closeCurrentLayerPath = path => {
+        if (!!path) {
+          path.fillColor = 'white'
+          path.fullySelected = false
+          path.closed = true
         }
-      }        
+      }
+
+      const handlePathClosed = (scope) => {
+        let path = getCurrentIncompletePath()
+        if (path) {
+          closeCurrentLayerPath(path)
+
+          const layer = getLayerOfActiveScope(scope)
+          writeOutPath(layer, path)
+        }
+      }
       
-      const handlePen = (event) => {
-        if (hasActivePaperLayerScope()) {
-          let activePaperScope = getActivePaperLayerScope()
-          // console.log('activePaperScope', activePaperScope)
-          let activeLayer = setActivePaperScopeLayer(activePaperScope)
-          // console.log('activeLayer', activeLayer)
-          
-          let openPath = getCurrentOpenPath()
-          const hitResult = performHitTest(activePaperScope, event.point)
-          
-          // debugger;
-          if (openPath && hitResult) {
+      const handlePenOnMouseDown = (event) => {
+        const detectPathLoopClosure = (scope) => {
+          const hitResult = performHitTest(scope, event.point)
+
+          if (!!hitResult) {
             const path = hitResult.item;
             const selectedSegment = hitResult.segment
             const frontEndOfPath = path.segments[0]
-
-            // debugger;
   
             // UNLESS HIT TEST GETS FILL THEN STAGE FOR PATH FOR MOVING
             if (hitResult.type === 'segment' && selectedSegment === frontEndOfPath) {
-              // AUTO CLOSE SEGMENT
-              closeCurrentLayerPath(activeLayer)
-              // writeOutPath(activeLayer, openPath)
-              return false
+              handlePathClosed(scope)
+              return true
             }
           }
-          else if (!openPath) {
-            console.log('open path')
-            // CREATE NEW PATH 
-            openPath = createNewOpenedPath(activePaperScope)
-            setCurrentOpenPath(openPath)
-          }
-  
-          // let path = new activePaperScope.Path.Circle(event.point, 15)
-          // path.strokeColor = 'black';
-          // path.fillColor = 'red'
-          // path.closed = true;
+          return false
+        }
 
+        const createNewPathIfRequired = (scope) => {
+          // CREATE NEW PATH 
+          const path = createNewOpenedPath(scope)
+          setCurrentIncompletePath(path)
+          return path
+        }
+
+        const putDownNextPoint = (path, point) => {
           // PUT DOWN NEXT POINT ON PATH
-          console.log('lastPathSegment', lastPathSegment)
-          const segment = insertEditablePointAtEndOfPath(lastPathSegment, openPath, event.point)
-          console.log('segment', segment)
-          setCurrentPathSegment(segment)
+          const previousSegment = getCurrentPathSegment()
+          const segment = insertEditablePointAtEndOfPath(previousSegment, path, point)
+          trackPathSegment(segment)
+        }
+
+        if (isScopeActivated()) {
+          const scope = getActiveScope()
+
+          let openPath = getCurrentIncompletePath()
+
+          if (!!openPath) {
+            if (detectPathLoopClosure(scope)) {
+              // STOP EVENT PROP 
+              return false
+            }
+          } else {
+            openPath = createNewPathIfRequired(scope)
+          }
+
+          putDownNextPoint(openPath, event.point)
         }
       }
 
       this.overlayEngine.view.onMouseDown = (event) => {
-        // console.log(event)
-        handlePen(event)
+        handlePenOnMouseDown(event)
       }
 
       this.overlayEngine.view.onMouseDrag = (event) => {
-        if (hasActivePaperLayerScope()) {
-          let activePaperScope = getActivePaperLayerScope()
-          setActivePaperScopeLayer(activePaperScope)
-  
+        if (isScopeActivated()) {
+          const scope = getActiveScope()
           const segment = getCurrentPathSegment() 
-          handleMouseDragForPenTool(activePaperScope, segment, event.modifiers.option, event.point)
+          handleMouseDragForPenTool(scope, segment, event.modifiers.option, event.point)
         }
       }
       
-      this.overlayEngine.view.onMouseUp = (event) => {
-        const handleMouseUpForPenTool = () => {
-          let activePaperScope = getActivePaperLayerScope()
-          setActivePaperScopeLayer(activePaperScope)
-    
-          setCurrentPathSegment(null)
-        }
-
-        if (hasActivePaperLayerScope()) {
-          handleMouseUpForPenTool()
+      this.overlayEngine.view.onMouseUp = () => {
+        if (isScopeActivated()) {
+          untrackPathSegment()
         }
       }   
       
       this.overlayEngine.view.onKeyUp = (event) => {
-        if (hasActivePaperLayerScope()) {
+        if (isScopeActivated()) {
   
-          let activePaperScope = getActivePaperLayerScope()
-          let activeLayer = setActivePaperScopeLayer(activePaperScope)
-  
+          const scope = getActiveScope()
+
           if (event.key === 'enter') {
-            // Scale the path by 110%:
-            // scrsibble.strokeColor = 'green' 
-            // Prevent the key event from bubbling
-            console.log('enter up')
-    
-            let incompletePath = getCurrentOpenPath()
-            if (incompletePath) {
-              closeCurrentLayerPath(activeLayer)
-              // writeOutPath(activeLayer, incompletePath)
-            }
+            handlePathClosed(scope)
           }
         }
       }      
 
-      drawRing(this.overlayEngine)
     }
 
     p5.draw = () => {

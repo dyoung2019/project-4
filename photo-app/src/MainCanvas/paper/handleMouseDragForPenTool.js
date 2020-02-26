@@ -19,11 +19,14 @@ export default function handleMouseDragForPenTool (scope, segment, keyHeldDown, 
     segment.handleOut = new activePaperScope.Point(-dx, -dy)
   }
 
-  if (!!segment) {
-    if (keyHeldDown) {
-      extendPathHandleIndependently(scope, segment, point)
-    } else {
-      extendPathHandles(scope, segment, point)
-    }
+  if (!segment) {
+    return
   }
+  
+  if (keyHeldDown) {
+    extendPathHandleIndependently(scope, segment, point)
+  } else {
+    extendPathHandles(scope, segment, point)
+  }
+  
 }
